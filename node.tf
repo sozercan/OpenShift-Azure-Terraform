@@ -11,10 +11,28 @@ resource "azurerm_network_interface" "osnodenic" {
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   ip_configuration {
-    name                          = "configuration"
-    subnet_id                     = "${azurerm_subnet.osnodesubnet.id}"
-    private_ip_address_allocation = "dynamic"
+    name                                    = "configuration"
+    subnet_id                               = "${azurerm_subnet.osnodesubnet.id}"
+    private_ip_address_allocation           = "dynamic"
+    load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.osnodelbbepool.id}"]
+    load_balancer_inbound_nat_rules_ids     = ["${azurerm_lb_nat_rule.osnodelbnatrule.id}"]
   }
+}
+
+resource "azurerm_lb_backend_address_pool" "osnodelbbepool" {
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id     = "${azurerm_lb.osnodelb.id}"
+  name                = "BackEndAddressPool"
+}
+
+resource "azurerm_lb_nat_rule" "osnodelbnatrule" {
+  resource_group_name            = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id                = "${azurerm_lb.osnodelb.id}"
+  name                           = "SSH"
+  protocol                       = "Tcp"
+  frontend_port                  = 22
+  backend_port                   = 22
+  frontend_ip_configuration_name = "PublicIPAddress"
 }
 
 resource "azurerm_public_ip" "osnodeip" {
@@ -84,7 +102,7 @@ resource "azurerm_virtual_machine" "osnodevm" {
 
 resource "azurerm_virtual_machine_extension" "osnodevmextension" {
   name                 = "osnodevmextension"
-  count                = "${var.openshift_azure_infra_vm_count}"
+  count                = "${var.openshift_azure_node_vm_count}"
   location             = "${var.openshift_azure_region}"
   resource_group_name  = "${azurerm_resource_group.osrg.name}"
   virtual_machine_name = "${azurerm_virtual_machine.osnodevm.name}"
