@@ -10,8 +10,12 @@ resource "azurerm_resource_group" "osrg" {
   location = "${var.openshift_azure_region}"
 }
 
+resource "random_id" "randomId" {
+  byte_length = 4
+}
+
 resource "azurerm_storage_account" "osstorage" {
-  name                = "osregistry987"
+  name                = "osregistry${random_id.randomId.hex}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   location     = "${var.openshift_azure_region}"

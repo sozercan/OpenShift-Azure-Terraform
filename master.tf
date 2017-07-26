@@ -22,7 +22,7 @@ resource "azurerm_public_ip" "osmasterip" {
   location                     = "${var.openshift_azure_region}"
   resource_group_name          = "${azurerm_resource_group.osrg.name}"
   public_ip_address_allocation = "static"
-  domain_name_label            = "${var.openshift_master_dns_name}"
+  domain_name_label            = "${var.openshift_azure_resource_group}"
 }
 
 resource "azurerm_lb" "osmasterlb" {
