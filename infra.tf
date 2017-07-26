@@ -65,6 +65,10 @@ resource "azurerm_virtual_machine" "osinfravm" {
 
   os_profile_linux_config {
     disable_password_authentication = true
-    ssh_keys                        = "${var.openshift_azure_ssh_keys}"
+
+    ssh_keys {
+      path     = "/home/azureuser/.ssh/authorized_keys"
+      key_data = "${var.openshift_azure_ssh_key}"
+    }
   }
 }

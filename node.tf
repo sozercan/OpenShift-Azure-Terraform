@@ -65,7 +65,11 @@ resource "azurerm_virtual_machine" "osnodevm" {
 
   os_profile_linux_config {
     disable_password_authentication = true
-    ssh_keys                        = "${var.openshift_azure_ssh_keys}"
+
+    ssh_keys {
+      path     = "/home/azureuser/.ssh/authorized_keys"
+      key_data = "${var.openshift_azure_ssh_key}"
+    }
   }
 }
 
@@ -75,9 +79,9 @@ resource "azurerm_virtual_machine_extension" "osnodevmextension" {
   location             = "${var.openshift_azure_region}"
   resource_group_name  = "${var.openshift_azure_resource_group}"
   virtual_machine_name = "${azurerm_virtual_machine.osnodevm.name}"
-  publisher            = "Microsoft.OSTCExtensions"
-  type                 = "CustomScriptForLinux"
-  type_handler_version = "1.2"
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.0"
 
   settings = <<SETTINGS
     {

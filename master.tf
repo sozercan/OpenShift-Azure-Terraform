@@ -66,7 +66,11 @@ resource "azurerm_virtual_machine" "osmastervm" {
 
   os_profile_linux_config {
     disable_password_authentication = true
-    ssh_keys                        = "${var.openshift_azure_ssh_keys}"
+
+    ssh_keys {
+      path     = "/home/azureuser/.ssh/authorized_keys"
+      key_data = "${var.openshift_azure_ssh_key}"
+    }
   }
 }
 
@@ -88,10 +92,10 @@ resource "azurerm_virtual_machine_extension" "osmastervmextension" {
         ],
         "commandToExecute": "bash masterPrep.sh && bash deployOpenShift.sh azureuser \
         password123 \
-        ${var.openshift_azure_ssh_keys} \
+        ${var.openshift_azure_ssh_key} \
         osmaster \
         ${azurerm_public_ip.osmasterip.fqdn} \
-        ${azurerm_public_ip.osmasterip.ip} \
+        ${azurerm_public_ip.osmasterip.ip_address} \
         osinfra \
         osnode \
         1 \
