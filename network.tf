@@ -98,7 +98,7 @@ resource "azurerm_network_security_group" "osnodes" {
     protocol                   = "*"
     source_port_range          = "*"
     destination_port_range     = "443"
-    source_address_prefix      = "Internet"
+    source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
 
@@ -117,3 +117,48 @@ resource "azurerm_network_security_group" "osnodes" {
 
 }
 
+resource "azurerm_network_security_group" "osinfras" {
+  name                = "os-infra-nsg"
+  location            = "${azurerm_resource_group.os.location}"
+  resource_group_name = "${azurerm_resource_group.os.name}"
+
+  security_rule {
+    name                       = "allowSSHin_all"
+    description                = "Allow SSH in from all locations"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "allowHTTPSIn_all"
+    description                = "Allow HTTPS traffic from the Internet to Public Agents"
+    priority                   = 200
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "allowHTTPIn_all"
+    description                = "Allow HTTP connections from all locations"
+    priority                   = 300
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "*"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+}
