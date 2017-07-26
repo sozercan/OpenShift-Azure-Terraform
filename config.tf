@@ -1,7 +1,18 @@
+variable "openshift_azure_resource_prefix" {
+  type        = "string"
+  description = "Prefix for all the resources"
+  default     = ""
+}
+variable "openshift_azure_resource_suffix" {
+  type        = "string"
+  description = "Suffix for all the resources"
+  default     = ""
+}
+
 variable "openshift_azure_resource_group" {
   type        = "string"
   description = "Azure resource group"
-  default     = "osrg"
+  default     = "${var.openshift_azure_resource_prefix}osrg${var.openshift_azure_resource_sufix}"
 }
 
 variable "openshift_azure_region" {
@@ -18,6 +29,16 @@ variable "openshift_azure_ssh_keys" {
 
 variable "openshift_azure_master_vm_count" {
   description = "Master VM count"
+  default     = 1
+}
+
+variable "openshift_azure_infra_vm_count" {
+  description = "Infra VM count"
+  default     = 1
+}
+
+variable "openshift_azure_node_vm_count" {
+  description = "Node VM count"
   default     = 1
 }
 

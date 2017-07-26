@@ -1,35 +1,29 @@
-resource "azurerm_virtual_network" "os" {
-  name                = "vnet${azurerm_resource_group.os.name}"
-  resource_group_name = "${azurerm_resource_group.os.name}"
-  location            = "${azurerm_resource_group.os.location}"
+resource "azurerm_virtual_network" "osvnet" {
+  name                = "${var.azurerm_resource_group.os.name}vnet"
+  resource_group_name = "${var.openshift_azure_resource_group}"
+  location            = "${var.openshift_azure_region}"
   address_space       = ["10.0.0.0/8"]
 }
 
-resource "azurerm_subnet" "osmasters" {
+resource "azurerm_subnet" "osmaster" {
   name                      = "os-mastersSubnet"
-  resource_group_name       = "${azurerm_resource_group.os.name}"
+  resource_group_name       = "${var.openshift_azure_resource_group}"
   virtual_network_name      = "${azurerm_virtual_network.os.name}"
+  network_security_group_id = "${azurerm_network_security_group.osmaster.id}"
   address_prefix            = "10.1.0.0/16"
 }
-resource "azurerm_subnet" "osnodes" {
-  name                      = "os-nodesSubnet"
-  resource_group_name       = "${azurerm_resource_group.os.name}"
+resource "azurerm_subnet" "osnode" {
+  name                      = "osnodesubnet"
+  resource_group_name       = "${var.openshift_azure_resource_group}"
   virtual_network_name      = "${azurerm_virtual_network.os.name}"
-  network_security_group_id = "${azurerm_network_security_group.dcospublic.id}"
-  address_prefix            = "10.0.0.0/11"
-}
-resource "azurerm_subnet" "dcosprivate" {
-  name                      = "dcos-agentPrivateSubnet"
-  resource_group_name       = "${azurerm_resource_group.dcos.name}"
-  virtual_network_name      = "${azurerm_virtual_network.dcos.name}"
-  network_security_group_id = "${azurerm_network_security_group.dcosprivate.id}"
-  address_prefix            = "10.32.0.0/11"
+  network_security_group_id = "${azurerm_network_security_group.osnode.id}"
+  address_prefix            = "10.2.0.0/16"
 }
 
-resource "azurerm_network_security_group" "osmasters" {
-  name                = "os-masters-nsg"
-  location            = "${azurerm_resource_group.os.location}"
-  resource_group_name = "${azurerm_resource_group.os.name}"
+resource "azurerm_network_security_group" "osmaster" {
+  name                = "os-master-nsg"
+  location            = "${var.openshift_azure_region}"
+  resource_group_name = "${var.openshift_azure_resource_group}"
 
   security_rule {
     name                       = "allowSSHin_all"
@@ -71,10 +65,10 @@ resource "azurerm_network_security_group" "osmasters" {
   }
 }
 
-resource "azurerm_network_security_group" "osnodes" {
-  name                = "os-nodes-nsg"
-  location            = "${azurerm_resource_group.os.location}"
-  resource_group_name = "${azurerm_resource_group.os.name}"
+resource "azurerm_network_security_group" "osnode" {
+  name                = "os-node-nsg"
+  location            = "${var.openshift_azure_region}"
+  resource_group_name = "${var.openshift_azure_resource_group}"
 
   security_rule {
     name                       = "allowSSHin_all"
@@ -117,10 +111,10 @@ resource "azurerm_network_security_group" "osnodes" {
 
 }
 
-resource "azurerm_network_security_group" "osinfras" {
+resource "azurerm_network_security_group" "osinfra" {
   name                = "os-infra-nsg"
-  location            = "${azurerm_resource_group.os.location}"
-  resource_group_name = "${azurerm_resource_group.os.name}"
+  location            = "${var.openshift_azure_region}"
+  resource_group_name = "${var.openshift_azure_resource_group}"
 
   security_rule {
     name                       = "allowSSHin_all"
