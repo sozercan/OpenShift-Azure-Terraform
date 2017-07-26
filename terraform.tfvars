@@ -7,3 +7,5 @@ openshift_azure_ssh_key = ""
 openshift_azure_master_vm_count = 1
 
 openshift_azure_master_vm_size = "Standard_DS2_v2"
+
+openshift_master_dns_name = "openshifthack"

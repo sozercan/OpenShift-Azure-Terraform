@@ -26,3 +26,9 @@ variable "openshift_azure_master_vm_size" {
   description = "Master VM size"
   default     = "Standard_DS2_v2"
 }
+
+variable "openshift_master_dns_name" {
+  type        = "string"
+  description = "DNS Name"
+  default     = "openshifthack"
+}

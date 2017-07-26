@@ -82,19 +82,3 @@ resource "azurerm_virtual_machine" "osinfravm" {
     ssh_keys                        = "${var.openshift_azure_ssh_keys}"
   }
 }
-
-resource "azurerm_virtual_machine_extension" "osinfravmextension" {
-  name                 = "osinfravmextension"
-  location             = "${var.openshift_azure_region}"
-  resource_group_name  = "${var.openshift_azure_resource_group}"
-  virtual_machine_name = "${azurerm_virtual_machine.osinfravm.name}"
-  publisher            = "Microsoft.OSTCExtensions"
-  type                 = "CustomScriptForLinux"
-  type_handler_version = "1.2"
-
-  settings = <<SETTINGS
-    {
-        "commandToExecute": "hostname"
-    }
-SETTINGS
-}

@@ -85,6 +85,7 @@ resource "azurerm_virtual_machine" "osnodevm" {
 
 resource "azurerm_virtual_machine_extension" "osnodevmextension" {
   name                 = "osnodevmextension"
+  count                = "${var.openshift_azure_infra_vm_count}"
   location             = "${var.openshift_azure_region}"
   resource_group_name  = "${var.openshift_azure_resource_group}"
   virtual_machine_name = "${azurerm_virtual_machine.osnodevm.name}"
@@ -94,7 +95,7 @@ resource "azurerm_virtual_machine_extension" "osnodevmextension" {
 
   settings = <<SETTINGS
     {
-        "commandToExecute": "hostname"
+        "commandToExecute": "./scripts/nodePrep.sh"
     }
 SETTINGS
 }
