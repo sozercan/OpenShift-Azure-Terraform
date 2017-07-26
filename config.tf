@@ -32,3 +32,27 @@ variable "openshift_master_dns_name" {
   description = "DNS Name"
   default     = "openshifthack"
 }
+
+variable "azure_client_id" {
+  type        = "string"
+  description = ""
+  default     = ""
+}
+
+variable "azure_client_secret" {
+  type        = "string"
+  description = ""
+  default     = ""
+}
+
+variable "azure_tenant_id" {
+  type        = "string"
+  description = ""
+  default     = ""
+}
+
+variable "azure_subscription_id" {
+  type        = "string"
+  description = ""
+  default     = ""
+}
