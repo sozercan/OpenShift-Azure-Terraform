@@ -95,7 +95,7 @@ resource "azurerm_virtual_machine_extension" "osnodevmextension" {
 
   settings = <<SETTINGS
     {
-        "commandToExecute": "./scripts/nodePrep.sh"
+        "commandToExecute": "hostname"
     }
 SETTINGS
 }

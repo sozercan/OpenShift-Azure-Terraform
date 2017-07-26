@@ -100,23 +100,28 @@ resource "azurerm_virtual_machine_extension" "osmastervmextension" {
         "fileUris": [
             "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/masterPrep.sh", "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/deployOpenShift.sh"
         ],
-        "commandToExecute": "./scripts/masterPrep.sh && ./scripts/deployOpenShift.sh azureuser password123 ${var.openshift_azure_ssh_keys} osmaster openshifthack.eastus.cloudapp.azure.com ${azurerm_public_ip.osmasterip.fqdn}
-INFRA=$7
-NODE=$8
-NODECOUNT=$9
-INFRACOUNT=${10}
-MASTERCOUNT=${11}
-ROUTING=${12}
-REGISTRYSA=${13}
-ACCOUNTKEY="${14}"
-TENANTID=${15}
-SUBSCRIPTIONID=${16}
-AADCLIENTID=${17}
-AADCLIENTSECRET="${18}"
-RESOURCEGROUP=${19}
-LOCATION=${20}
-STORAGEACCOUNT1=${21}
-SAKEY1=${22}"
+        "commandToExecute": "bash masterPrep.sh && bash deployOpenShift.sh azureuser \
+        password123 \
+        ${var.openshift_azure_ssh_keys} \
+        osmaster \
+        ${azurerm_public_ip.osmasterip.fqdn} \
+        ${azurerm_public_ip.osmasterip.ip} \
+        osinfra \
+        osnode \
+        1 \
+        1 \
+        1 \
+        xip.io \
+        ${azurerm_storage_account.osstorage.name} \
+        ${azurerm_storage_account.osstorage.primary_access_key} \
+        ${env.ARM_TENANT_ID} \
+        ${env.ARM_SUBSCRIPTION_ID} \
+        ${env.ARM_CLIENT_ID} \
+        ${env.ARM_CLIENT_SECRET} \
+        ${var.openshift_azure_resource_group} \
+        ${var.openshift_azure_region} \
+        ospvstorage567 \
+        ${azurerm_storage_account.osstorage.primary_access_key}"
     }
 SETTINGS
 }
