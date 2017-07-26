@@ -59,6 +59,14 @@ resource "azurerm_virtual_machine" "osmastervm" {
     managed_disk_type = "Standard_LRS"
   }
 
+  storage_data_disk {
+    name              = "datadiskmaster"
+    managed_disk_type = "Standard_LRS"
+    create_option     = "Empty"
+    lun               = 0
+    disk_size_gb      = "128"
+  }
+
   os_profile {
     computer_name  = "osmaster"
     admin_username = "azureuser"
@@ -91,28 +99,7 @@ resource "azurerm_virtual_machine_extension" "osmastervmextension" {
         "fileUris": [
             "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/masterPrep.sh", "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/deployOpenShift.sh"
         ],
-        "commandToExecute": "bash masterPrep.sh && bash deployOpenShift.sh azureuser \
-        password123 \
-        ${var.openshift_azure_ssh_key} \
-        osmaster \
-        ${azurerm_public_ip.osmasterip.fqdn} \
-        ${azurerm_public_ip.osmasterip.ip_address} \
-        osinfra \
-        osnode \
-        1 \
-        1 \
-        1 \
-        xip.io \
-        ${azurerm_storage_account.osstorage.name} \
-        ${azurerm_storage_account.osstorage.primary_access_key} \
-        ${var.azure_tenant_id} \
-        ${var.azure_subscription_id} \
-        ${var.azure_client_id} \
-        ${var.azure_client_secret} \
-        ${var.openshift_azure_resource_group} \
-        ${var.openshift_azure_region} \
-        ospvstorage567 \
-        ${azurerm_storage_account.osstorage.primary_access_key}"
+        "commandToExecute": "bash masterPrep.sh ospvstorage567 azureuser && bash deployOpenShift.sh azureuser password123 ${var.openshift_azure_ssh_key} osmaster ${azurerm_public_ip.osmasterip.fqdn} ${azurerm_public_ip.osmasterip.ip_address} osinfra osnode 1 1 1 xip.io ${azurerm_storage_account.osstorage.name} ${azurerm_storage_account.osstorage.primary_access_key} ${var.azure_tenant_id} ${var.azure_subscription_id} ${var.azure_client_id} ${var.azure_client_secret} ${var.openshift_azure_resource_group} ${var.openshift_azure_region} ospvstorage567 ${azurerm_storage_account.osstorage.primary_access_key}"
     }
 SETTINGS
 }

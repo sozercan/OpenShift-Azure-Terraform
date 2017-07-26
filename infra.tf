@@ -58,6 +58,14 @@ resource "azurerm_virtual_machine" "osinfravm" {
     managed_disk_type = "Standard_LRS"
   }
 
+  storage_data_disk {
+    name              = "datadiskinfra"
+    managed_disk_type = "Standard_LRS"
+    create_option     = "Empty"
+    lun               = 0
+    disk_size_gb      = "128"
+  }
+
   os_profile {
     computer_name  = "osinfra"
     admin_username = "azureuser"
