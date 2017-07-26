@@ -53,7 +53,7 @@ resource "azurerm_virtual_machine" "osmastervm" {
   }
 
   storage_os_disk {
-    name              = "osdisk"
+    name              = "osdiskmaster"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"

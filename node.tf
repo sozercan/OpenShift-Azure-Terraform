@@ -52,7 +52,7 @@ resource "azurerm_virtual_machine" "osnodevm" {
   }
 
   storage_os_disk {
-    name              = "osdisk"
+    name              = "osdisknode"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"

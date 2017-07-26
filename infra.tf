@@ -52,7 +52,7 @@ resource "azurerm_virtual_machine" "osinfravm" {
   }
 
   storage_os_disk {
-    name              = "osdisk"
+    name              = "osdiskinfra"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
