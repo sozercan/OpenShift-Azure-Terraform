@@ -15,3 +15,14 @@ variable "openshift_azure_ssh_keys" {
   description = "SSH keys"
   default     = ""
 }
+
+variable "openshift_azure_master_vm_count" {
+  description = "Master VM count"
+  default     = 1
+}
+
+variable "openshift_azure_master_vm_size" {
+  type        = "string"
+  description = "Master VM size"
+  default     = "Standard_DS2_v2"
+}

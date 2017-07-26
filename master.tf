@@ -30,13 +30,32 @@ resource "azurerm_network_interface" "osmasternic" {
   }
 }
 
+resource "azurerm_public_ip" "osmasterip" {
+  name                         = "osmasterip"
+  location                     = "${var.openshift_azure_region}"
+  resource_group_name          = "${var.openshift_azure_resource_group}"
+  public_ip_address_allocation = "static"
+}
+
+resource "azurerm_lb" "osmasterlb" {
+  name                = "osmasterlb"
+  location            = "${var.openshift_azure_region}"
+  resource_group_name = "${var.openshift_azure_resource_group}"
+
+  frontend_ip_configuration {
+    name                 = "PublicIPAddress"
+    public_ip_address_id = "${azurerm_public_ip.osmasterip.id}"
+  }
+}
+
 resource "azurerm_virtual_machine" "osmastervm" {
   name                  = "osmastervm"
+  count                 = "${var.openshift_azure_master_vm_count}"
   location              = "${var.openshift_azure_region}"
   resource_group_name   = "${var.openshift_azure_resource_group}"
   network_interface_ids = ["${azurerm_network_interface.osmasternic.id}"]
   availability_set_id   = "${azurerm_availability_set.osmasteras.id}"
-  vm_size               = "Standard_DS2_v2"
+  vm_size               = "${var.openshift_azure_master_vm_size}"
 
   storage_image_reference {
     publisher = "Openlogic"
@@ -62,4 +81,20 @@ resource "azurerm_virtual_machine" "osmastervm" {
     disable_password_authentication = true
     ssh_keys                        = "${var.openshift_azure_ssh_keys}"
   }
+}
+
+resource "azurerm_virtual_machine_extension" "osmastervmextension" {
+  name                 = "osmastervmextension"
+  location             = "${var.openshift_azure_region}"
+  resource_group_name  = "${var.openshift_azure_resource_group}"
+  virtual_machine_name = "${azurerm_virtual_machine.osmastervm.name}"
+  publisher            = "Microsoft.OSTCExtensions"
+  type                 = "CustomScriptForLinux"
+  type_handler_version = "1.2"
+
+  settings = <<SETTINGS
+    {
+        "commandToExecute": "hostname"
+    }
+SETTINGS
 }
