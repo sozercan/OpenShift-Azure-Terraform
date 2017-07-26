@@ -1,13 +1,14 @@
 resource "azurerm_availability_set" "osnodeas" {
   name                = "osnodeas"
   location            = "${var.openshift_azure_region}"
-  resource_group_name = "${var.openshift_azure_resource_group}"
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
+  managed             = true
 }
 
 resource "azurerm_network_interface" "osnodenic" {
   name                = "osnodenic"
   location            = "${var.openshift_azure_region}"
-  resource_group_name = "${var.openshift_azure_resource_group}"
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   ip_configuration {
     name                          = "configuration"
@@ -19,14 +20,14 @@ resource "azurerm_network_interface" "osnodenic" {
 resource "azurerm_public_ip" "osnodeip" {
   name                         = "osnodeip"
   location                     = "${var.openshift_azure_region}"
-  resource_group_name          = "${var.openshift_azure_resource_group}"
+  resource_group_name          = "${azurerm_resource_group.osrg.name}"
   public_ip_address_allocation = "static"
 }
 
 resource "azurerm_lb" "osnodelb" {
   name                = "osnodelb"
   location            = "${var.openshift_azure_region}"
-  resource_group_name = "${var.openshift_azure_resource_group}"
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   frontend_ip_configuration {
     name                 = "PublicIPAddress"
@@ -38,7 +39,7 @@ resource "azurerm_virtual_machine" "osnodevm" {
   name                  = "osnodevm"
   count                 = "${var.openshift_azure_node_vm_count}"
   location              = "${var.openshift_azure_region}"
-  resource_group_name   = "${var.openshift_azure_resource_group}"
+  resource_group_name   = "${azurerm_resource_group.osrg.name}"
   network_interface_ids = ["${azurerm_network_interface.osnodenic.id}"]
   availability_set_id   = "${azurerm_availability_set.osnodeas.id}"
   vm_size               = "${var.openshift_azure_node_vm_size}"
@@ -77,7 +78,7 @@ resource "azurerm_virtual_machine_extension" "osnodevmextension" {
   name                 = "osnodevmextension"
   count                = "${var.openshift_azure_infra_vm_count}"
   location             = "${var.openshift_azure_region}"
-  resource_group_name  = "${var.openshift_azure_resource_group}"
+  resource_group_name  = "${azurerm_resource_group.osrg.name}"
   virtual_machine_name = "${azurerm_virtual_machine.osnodevm.name}"
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"

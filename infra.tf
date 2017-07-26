@@ -1,13 +1,14 @@
 resource "azurerm_availability_set" "osinfraas" {
   name                = "osinfraas"
   location            = "${var.openshift_azure_region}"
-  resource_group_name = "${var.openshift_azure_resource_group}"
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
+  managed             = true
 }
 
 resource "azurerm_network_interface" "osinfranic" {
   name                = "osinfranic"
   location            = "${var.openshift_azure_region}"
-  resource_group_name = "${var.openshift_azure_resource_group}"
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   ip_configuration {
     name                          = "configuration"
@@ -19,14 +20,14 @@ resource "azurerm_network_interface" "osinfranic" {
 resource "azurerm_public_ip" "osinfraip" {
   name                         = "osinfraip"
   location                     = "${var.openshift_azure_region}"
-  resource_group_name          = "${var.openshift_azure_resource_group}"
+  resource_group_name          = "${azurerm_resource_group.osrg.name}"
   public_ip_address_allocation = "static"
 }
 
 resource "azurerm_lb" "osinfralb" {
   name                = "osinfralb"
   location            = "${var.openshift_azure_region}"
-  resource_group_name = "${var.openshift_azure_resource_group}"
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   frontend_ip_configuration {
     name                 = "PublicIPAddress"
@@ -38,7 +39,7 @@ resource "azurerm_virtual_machine" "osinfravm" {
   name                  = "osinfravm"
   count                 = "${var.openshift_azure_infra_vm_count}"
   location              = "${var.openshift_azure_region}"
-  resource_group_name   = "${var.openshift_azure_resource_group}"
+  resource_group_name   = "${azurerm_resource_group.osrg.name}"
   network_interface_ids = ["${azurerm_network_interface.osinfranic.id}"]
   availability_set_id   = "${azurerm_availability_set.osinfraas.id}"
   vm_size               = "${var.openshift_azure_infra_vm_size}"
