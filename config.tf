@@ -13,7 +13,7 @@ variable "openshift_azure_resource_suffix" {
 variable "openshift_azure_resource_group" {
   type        = "string"
   description = "Azure resource group"
-  default     = "${var.openshift_azure_resource_prefix}osrg${var.openshift_azure_resource_sufix}"
+  default     = "openshifthack"
 }
 
 variable "openshift_azure_region" {

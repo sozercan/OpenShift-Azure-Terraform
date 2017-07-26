@@ -5,23 +5,31 @@ resource "azurerm_virtual_network" "osvnet" {
   address_space       = ["10.0.0.0/8"]
 }
 
-resource "azurerm_subnet" "osmaster" {
-  name                      = "os-mastersSubnet"
+resource "azurerm_subnet" "osmastersubnet" {
+  name                      = "osmastersubnet"
   resource_group_name       = "${var.openshift_azure_resource_group}"
-  virtual_network_name      = "${azurerm_virtual_network.os.name}"
-  network_security_group_id = "${azurerm_network_security_group.osmaster.id}"
+  virtual_network_name      = "${azurerm_virtual_network.osvnet.name}"
+  network_security_group_id = "${azurerm_network_security_group.osmasternsg.id}"
   address_prefix            = "10.1.0.0/16"
 }
 
-resource "azurerm_subnet" "osnode" {
+resource "azurerm_subnet" "osnodesubnet" {
   name                      = "osnodesubnet"
   resource_group_name       = "${var.openshift_azure_resource_group}"
-  virtual_network_name      = "${azurerm_virtual_network.os.name}"
-  network_security_group_id = "${azurerm_network_security_group.osnode.id}"
+  virtual_network_name      = "${azurerm_virtual_network.osvnet.name}"
+  network_security_group_id = "${azurerm_network_security_group.osnodensg.id}"
   address_prefix            = "10.2.0.0/16"
 }
 
-resource "azurerm_network_security_group" "osmaster" {
+resource "azurerm_subnet" "osinfrasubnet" {
+  name                      = "osinfrasubnet"
+  resource_group_name       = "${var.openshift_azure_resource_group}"
+  virtual_network_name      = "${azurerm_virtual_network.osvnet.name}"
+  network_security_group_id = "${azurerm_network_security_group.osinfransg.id}"
+  address_prefix            = "10.3.0.0/16"
+}
+
+resource "azurerm_network_security_group" "osmasternsg" {
   name                = "os-master-nsg"
   location            = "${var.openshift_azure_region}"
   resource_group_name = "${var.openshift_azure_resource_group}"
@@ -66,7 +74,7 @@ resource "azurerm_network_security_group" "osmaster" {
   }
 }
 
-resource "azurerm_network_security_group" "osnode" {
+resource "azurerm_network_security_group" "osnodensg" {
   name                = "os-node-nsg"
   location            = "${var.openshift_azure_region}"
   resource_group_name = "${var.openshift_azure_resource_group}"
@@ -111,7 +119,7 @@ resource "azurerm_network_security_group" "osnode" {
   }
 }
 
-resource "azurerm_network_security_group" "osinfra" {
+resource "azurerm_network_security_group" "osinfransg" {
   name                = "os-infra-nsg"
   location            = "${var.openshift_azure_region}"
   resource_group_name = "${var.openshift_azure_resource_group}"
