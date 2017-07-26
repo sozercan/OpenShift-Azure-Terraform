@@ -1,13 +1,13 @@
 variable "openshift_azure_resource_prefix" {
   type        = "string"
   description = "Prefix for all the resources"
-  default     = ""
+  default     = "os"
 }
 
 variable "openshift_azure_resource_suffix" {
   type        = "string"
   description = "Suffix for all the resources"
-  default     = ""
+  default     = "tf"
 }
 
 variable "openshift_azure_resource_group" {

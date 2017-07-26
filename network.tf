@@ -1,5 +1,5 @@
 resource "azurerm_virtual_network" "osvnet" {
-  name                = "osvnet"
+  name                = "${var.openshift_azure_resource_prefix}osvnet${var.openshift_azure_resource_suffix}"
   depends_on          = ["azurerm_resource_group.osrg"]
   resource_group_name = "${azurerm_resource_group.osrg.name}"
   location            = "${var.openshift_azure_region}"

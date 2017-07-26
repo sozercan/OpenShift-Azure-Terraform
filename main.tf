@@ -6,7 +6,7 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "osrg" {
-  name     = "${var.openshift_azure_resource_group}"
+  name     = "${format("%s-%s-%s",var.openshift_azure_resource_prefix,var.openshift_azure_resource_group,var.openshift_azure_resource_suffix)}"
   location = "${var.openshift_azure_region}"
 }
 
@@ -15,7 +15,7 @@ resource "random_id" "randomId" {
 }
 
 resource "azurerm_storage_account" "osstorage" {
-  name                = "osregistry${random_id.randomId.hex}"
+  name                = "${var.openshift_azure_resource_prefix}sa${random_id.randomId.hex}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   location     = "${var.openshift_azure_region}"
