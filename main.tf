@@ -1,7 +1,7 @@
 provider "azurerm" {}
 
-resource "azurerm_resource_group" "os" {
-  name     = "osrg"
+resource "azurerm_resource_group" "osrg" {
+  name     = "${var.openshift_azure_resource_group}"
   location = "${var.openshift_azure_region}"
 }
 
