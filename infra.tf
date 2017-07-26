@@ -4,20 +4,6 @@ resource "azurerm_availability_set" "osinfraas" {
   resource_group_name = "${var.openshift_azure_resource_group}"
 }
 
-resource "azurerm_virtual_network" "osinfravnet" {
-  name                = "osinfravnet"
-  address_space       = ["10.0.0.0/16"]
-  location            = "${var.openshift_azure_region}"
-  resource_group_name = "${var.openshift_azure_resource_group}"
-}
-
-resource "azurerm_subnet" "osinfrasubnet" {
-  name                 = "osinfrasubnet"
-  resource_group_name  = "${var.openshift_azure_resource_group}"
-  virtual_network_name = "${azurerm_virtual_network.test.name}"
-  address_prefix       = "10.0.2.0/24"
-}
-
 resource "azurerm_network_interface" "osinfranic" {
   name                = "osinfranic"
   location            = "${var.openshift_azure_region}"

@@ -4,20 +4,6 @@ resource "azurerm_availability_set" "osmasteras" {
   resource_group_name = "${var.openshift_azure_resource_group}"
 }
 
-resource "azurerm_virtual_network" "osmastervnet" {
-  name                = "osmastervnet"
-  address_space       = ["10.0.0.0/16"]
-  location            = "${var.openshift_azure_region}"
-  resource_group_name = "${var.openshift_azure_resource_group}"
-}
-
-resource "azurerm_subnet" "osmastersubnet" {
-  name                 = "osmastersubnet"
-  resource_group_name  = "${var.openshift_azure_resource_group}"
-  virtual_network_name = "${azurerm_virtual_network.test.name}"
-  address_prefix       = "10.0.2.0/24"
-}
-
 resource "azurerm_network_interface" "osmasternic" {
   name                = "osmasternic"
   location            = "${var.openshift_azure_region}"
@@ -114,10 +100,10 @@ resource "azurerm_virtual_machine_extension" "osmastervmextension" {
         xip.io \
         ${azurerm_storage_account.osstorage.name} \
         ${azurerm_storage_account.osstorage.primary_access_key} \
-        ${env.ARM_TENANT_ID} \
-        ${env.ARM_SUBSCRIPTION_ID} \
-        ${env.ARM_CLIENT_ID} \
-        ${env.ARM_CLIENT_SECRET} \
+        ${var.azure_tenant_id} \
+        ${var.azure_subscription_id} \
+        ${var.azure_client_id} \
+        ${var.azure_client_secret} \
         ${var.openshift_azure_resource_group} \
         ${var.openshift_azure_region} \
         ospvstorage567 \
