@@ -1,5 +1,5 @@
 resource "azurerm_virtual_network" "osvnet" {
-  name                = "${var.azurerm_resource_group.os.name}vnet"
+  name                = "osvnet"
   resource_group_name = "${var.openshift_azure_resource_group}"
   location            = "${var.openshift_azure_region}"
   address_space       = ["10.0.0.0/8"]
@@ -12,6 +12,7 @@ resource "azurerm_subnet" "osmaster" {
   network_security_group_id = "${azurerm_network_security_group.osmaster.id}"
   address_prefix            = "10.1.0.0/16"
 }
+
 resource "azurerm_subnet" "osnode" {
   name                      = "osnodesubnet"
   resource_group_name       = "${var.openshift_azure_resource_group}"
@@ -108,7 +109,6 @@ resource "azurerm_network_security_group" "osnode" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-
 }
 
 resource "azurerm_network_security_group" "osinfra" {
@@ -154,5 +154,4 @@ resource "azurerm_network_security_group" "osinfra" {
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
-
 }

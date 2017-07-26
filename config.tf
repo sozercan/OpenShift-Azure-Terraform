@@ -3,6 +3,7 @@ variable "openshift_azure_resource_prefix" {
   description = "Prefix for all the resources"
   default     = ""
 }
+
 variable "openshift_azure_resource_suffix" {
   type        = "string"
   description = "Suffix for all the resources"
@@ -48,20 +49,10 @@ variable "openshift_azure_master_vm_size" {
   default     = "Standard_DS2_v2"
 }
 
-variable "openshift_azure_infra_vm_count" {
-  description = "Infra VM count"
-  default     = 1
-}
-
 variable "openshift_azure_infra_vm_size" {
   type        = "string"
   description = "Infra VM size"
   default     = "Standard_DS2_v2"
-}
-
-variable "openshift_azure_node_vm_count" {
-  description = "Node VM count"
-  default     = 1
 }
 
 variable "openshift_azure_node_vm_size" {
