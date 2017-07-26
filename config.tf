@@ -9,3 +9,9 @@ variable "openshift_azure_region" {
   description = "Azure region for deployment"
   default     = "East US"
 }
+
+variable "openshift_azure_ssh_keys" {
+  type        = "string"
+  description = "SSH keys"
+  default     = ""
+}
