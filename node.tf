@@ -95,7 +95,7 @@ resource "azurerm_virtual_machine" "osnodevm" {
 
     ssh_keys {
       path     = "/home/${var.openshift_azure_vm_username}/.ssh/authorized_keys"
-      key_data = "${var.openshift_azure_ssh_key}"
+      key_data = "${file(var.openshift_azure_public_key)}"
     }
   }
 }

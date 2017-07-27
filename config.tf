@@ -22,9 +22,15 @@ variable "openshift_azure_region" {
   default     = "East US"
 }
 
-variable "openshift_azure_ssh_key" {
+variable "openshift_azure_public_key" {
   type        = "string"
-  description = "SSH key"
+  description = "SSH Public key"
+  default     = ""
+}
+
+variable "openshift_azure_private_key" {
+  type        = "string"
+  description = "SSH Private key"
   default     = ""
 }
 

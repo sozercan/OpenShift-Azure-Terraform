@@ -96,7 +96,7 @@ resource "azurerm_virtual_machine" "osmastervm" {
 
     ssh_keys {
       path     = "/home/${var.openshift_azure_vm_username}/.ssh/authorized_keys"
-      key_data = "${var.openshift_azure_ssh_key}"
+      key_data = "${file(var.openshift_azure_public_key)}"
     }
   }
 }
@@ -117,7 +117,7 @@ resource "azurerm_virtual_machine_extension" "osmastervmextension" {
         "fileUris": [
             "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/masterPrep.sh", "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/deployOpenShift.sh"
         ],
-        "commandToExecute": "bash masterPrep.sh ${azurerm_storage_account.osstoragepv.name} ${var.openshift_azure_vm_username} && bash deployOpenShift.sh ${var.openshift_azure_vm_username} ${var.openshift_initial_password} '${var.openshift_azure_ssh_key}' '${var.openshift_azure_resource_prefix}-vm-master-${var.openshift_azure_resource_suffix}' ${azurerm_public_ip.osmasterip.fqdn} ${azurerm_public_ip.osmasterip.ip_address} '${var.openshift_azure_resource_prefix}-vm-infra-${var.openshift_azure_resource_suffix}' '${var.openshift_azure_resource_prefix}-vm-node-${var.openshift_azure_resource_suffix}' ${var.openshift_azure_node_vm_count} ${var.openshift_azure_infra_vm_count} ${var.openshift_azure_master_vm_count} xip.io ${azurerm_storage_account.osstorageregistry.name} ${azurerm_storage_account.osstorageregistry.primary_access_key} ${var.azure_tenant_id} ${var.azure_subscription_id} ${var.azure_client_id} ${var.azure_client_secret} ${var.openshift_azure_resource_group} '${var.openshift_azure_region}' ${azurerm_storage_account.osstoragepv.name} ${azurerm_storage_account.osstoragepv.primary_access_key}"
+        "commandToExecute": "bash masterPrep.sh ${azurerm_storage_account.osstoragepv.name} ${var.openshift_azure_vm_username} && bash deployOpenShift.sh ${var.openshift_azure_vm_username} ${var.openshift_initial_password} '${var.openshift_azure_private_key}' '${var.openshift_azure_resource_prefix}-vm-master-${var.openshift_azure_resource_suffix}' ${azurerm_public_ip.osmasterip.fqdn} ${azurerm_public_ip.osmasterip.ip_address} '${var.openshift_azure_resource_prefix}-vm-infra-${var.openshift_azure_resource_suffix}' '${var.openshift_azure_resource_prefix}-vm-node-${var.openshift_azure_resource_suffix}' ${var.openshift_azure_node_vm_count} ${var.openshift_azure_infra_vm_count} ${var.openshift_azure_master_vm_count} xip.io ${azurerm_storage_account.osstorageregistry.name} ${azurerm_storage_account.osstorageregistry.primary_access_key} ${var.azure_tenant_id} ${var.azure_subscription_id} ${var.azure_client_id} ${var.azure_client_secret} ${var.openshift_azure_resource_group} '${var.openshift_azure_region}' ${azurerm_storage_account.osstoragepv.name} ${azurerm_storage_account.osstoragepv.primary_access_key}"
     }
 SETTINGS
 }
