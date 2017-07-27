@@ -92,25 +92,25 @@ variable "openshift_infra_dns_name" {
 
 variable "azure_client_id" {
   type        = "string"
-  description = ""
+  description = "Azure Client ID"
   default     = ""
 }
 
 variable "azure_client_secret" {
   type        = "string"
-  description = ""
+  description = "Azure Client Secret"
   default     = ""
 }
 
 variable "azure_tenant_id" {
   type        = "string"
-  description = ""
+  description = "Azure Tenant ID"
   default     = ""
 }
 
 variable "azure_subscription_id" {
   type        = "string"
-  description = ""
+  description = "Azure Subscription ID"
   default     = ""
 }
 
