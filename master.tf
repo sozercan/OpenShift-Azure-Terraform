@@ -101,12 +101,31 @@ resource "azurerm_virtual_machine" "osmastervm" {
   }
 }
 
+resource "null_resource" "osmasterssh" {
+  depends_on = ["azurerm_virtual_machine.osmastervm"]
+
+  triggers {
+    api-endpoint = "${azurerm_public_ip.osmasterip.fqdn}"
+  }
+
+  connection {
+    host  = "${azurerm_public_ip.osmasterip.fqdn}"
+    user  = "${var.openshift_azure_vm_username}"
+    agent = true
+  }
+
+  provisioner "file" {
+    source      = "${var.openshift_azure_private_key}"
+    destination = "$HOME/.ssh/"
+  }
+}
+
 resource "azurerm_virtual_machine_extension" "osmastervmextension" {
   name                 = "osmastervmextension"
   count                = "${var.openshift_azure_master_vm_count}"
   location             = "${var.openshift_azure_region}"
   resource_group_name  = "${azurerm_resource_group.osrg.name}"
-  depends_on           = ["azurerm_virtual_machine.osmastervm"]
+  depends_on           = ["azurerm_virtual_machine.osmastervm", "null_resource.osmasterssh"]
   virtual_machine_name = "${azurerm_virtual_machine.osmastervm.name}"
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
@@ -117,7 +136,7 @@ resource "azurerm_virtual_machine_extension" "osmastervmextension" {
         "fileUris": [
             "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/masterPrep.sh", "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/deployOpenShift.sh"
         ],
-        "commandToExecute": "bash masterPrep.sh ${azurerm_storage_account.osstoragepv.name} ${var.openshift_azure_vm_username} && bash deployOpenShift.sh ${var.openshift_azure_vm_username} ${var.openshift_initial_password} '${var.openshift_azure_private_key}' '${var.openshift_azure_resource_prefix}-vm-master-${var.openshift_azure_resource_suffix}' ${azurerm_public_ip.osmasterip.fqdn} ${azurerm_public_ip.osmasterip.ip_address} '${var.openshift_azure_resource_prefix}-vm-infra-${var.openshift_azure_resource_suffix}' '${var.openshift_azure_resource_prefix}-vm-node-${var.openshift_azure_resource_suffix}' ${var.openshift_azure_node_vm_count} ${var.openshift_azure_infra_vm_count} ${var.openshift_azure_master_vm_count} xip.io ${azurerm_storage_account.osstorageregistry.name} ${azurerm_storage_account.osstorageregistry.primary_access_key} ${var.azure_tenant_id} ${var.azure_subscription_id} ${var.azure_client_id} ${var.azure_client_secret} ${var.openshift_azure_resource_group} '${var.openshift_azure_region}' ${azurerm_storage_account.osstoragepv.name} ${azurerm_storage_account.osstoragepv.primary_access_key}"
+        "commandToExecute": "${format("bash masterPrep.sh %s %s && bash deployOpenShift.sh %s %s '%s-vm-master-%s' %s %s '%s-vm-infra-%s' '%s-vm-node-%s' %s %s %s xip,io %s %s %s %s %s %s %s '%s' %s %s", azurerm_storage_account.osstoragepv.name, var.openshift_azure_vm_username, var.openshift_azure_vm_username, var.openshift_initial_password, var.openshift_azure_resource_prefix, var.openshift_azure_resource_suffix, azurerm_public_ip.osmasterip.fqdn, azurerm_public_ip.osmasterip.ip_address, var.openshift_azure_resource_prefix, var.openshift_azure_resource_suffix, var.openshift_azure_resource_prefix, var.openshift_azure_resource_suffix, var.openshift_azure_node_vm_count, var.openshift_azure_infra_vm_count, var.openshift_azure_master_vm_count, azurerm_storage_account.osstorageregistry.name, azurerm_storage_account.osstorageregistry.primary_access_key, var.azure_tenant_id, var.azure_subscription_id, var.azure_client_id, var.azure_client_secret, var.openshift_azure_resource_group, var.openshift_azure_region, azurerm_storage_account.osstoragepv.name, azurerm_storage_account.osstoragepv.primary_access_key)}"
     }
 SETTINGS
 }
