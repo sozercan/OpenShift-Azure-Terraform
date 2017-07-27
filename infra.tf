@@ -40,7 +40,7 @@ resource "azurerm_public_ip" "osinfraip" {
   location                     = "${var.openshift_azure_region}"
   resource_group_name          = "${azurerm_resource_group.osrg.name}"
   public_ip_address_allocation = "static"
-  domain_name_label          = "${var.openshift_azure_resource_prefix}-${var.openshift_infra_dns_name}-${var.openshift_azure_resource_suffix}"
+  domain_name_label            = "${var.openshift_azure_resource_prefix}-${var.openshift_infra_dns_name}-${var.openshift_azure_resource_suffix}"
 }
 
 resource "azurerm_lb" "osinfralb" {
@@ -99,4 +99,24 @@ resource "azurerm_virtual_machine" "osinfravm" {
       key_data = "${var.openshift_azure_ssh_key}"
     }
   }
+}
+
+resource "azurerm_virtual_machine_extension" "osinfravmextension" {
+  name                 = "osinfravmextension"
+  count                = "${var.openshift_azure_node_vm_count}"
+  location             = "${var.openshift_azure_region}"
+  resource_group_name  = "${azurerm_resource_group.osrg.name}"
+  virtual_machine_name = "${azurerm_virtual_machine.osnodevm.name}"
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.0"
+
+  settings = <<SETTINGS
+    {
+        "fileUris": [
+            "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/masterPrep.sh"
+        ],
+        "commandToExecute": "bash masterPrep.sh ospvstorage567 ${var.openshift_azure_vm_username}"
+    }
+SETTINGS
 }

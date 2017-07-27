@@ -112,7 +112,10 @@ resource "azurerm_virtual_machine_extension" "osnodevmextension" {
 
   settings = <<SETTINGS
     {
-        "commandToExecute": "hostname"
+        "fileUris": [
+            "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/masterPrep.sh"
+        ],
+        "commandToExecute": "bash masterPrep.sh ospvstorage567 ${var.openshift_azure_vm_username}"
     }
 SETTINGS
 }
