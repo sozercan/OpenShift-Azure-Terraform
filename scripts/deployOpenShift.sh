@@ -6,25 +6,27 @@ set -e
 
 SUDOUSER=$1
 PASSWORD="$2"
-MASTER=$3
-MASTERPUBLICIPHOSTNAME=$4
-MASTERPUBLICIPADDRESS=$5
-INFRA=$6
-NODE=$7
-NODECOUNT=$8
-INFRACOUNT=${9}
-MASTERCOUNT=${10}
-ROUTING=${11}
-REGISTRYSA=${12}
-ACCOUNTKEY="${13}"
-TENANTID=${14}
-SUBSCRIPTIONID=${15}
-AADCLIENTID=${16}
-AADCLIENTSECRET="${17}"
-RESOURCEGROUP=${18}
-LOCATION=${19}
-STORAGEACCOUNT1=${20}
-SAKEY1=${21}
+PRIVATEKEY=$3
+MASTER=$4
+MASTERPUBLICIPHOSTNAME=$5
+MASTERPUBLICIPADDRESS=$6
+INFRA=$7
+NODE=$8
+NODECOUNT=$9
+INFRACOUNT=${10}
+MASTERCOUNT=${11}
+ROUTING=${12}
+REGISTRYSA=${13}
+ACCOUNTKEY="${14}"
+TENANTID=${15}
+SUBSCRIPTIONID=${16}
+AADCLIENTID=${17}
+AADCLIENTSECRET="${18}"
+RESOURCEGROUP=${19}
+LOCATION=${20}
+STORAGEACCOUNT1=${21}
+SAKEY1=${22}
+
 
 MASTERLOOP=$((MASTERCOUNT - 1))
 INFRALOOP=$((INFRACOUNT - 1))
@@ -41,6 +43,7 @@ azure storage container create -a $STORAGEACCOUNT1 -k $SAKEY1 --container vhds
 # Generate private keys for use by Ansible
 echo $(date) " - Generating Private keys for use by Ansible for OpenShift Installation"
 
+runuser -l $SUDOUSER -c "(echo \"$PRIVATEKEY\" | base64 -D) > ~/.ssh/id_rsa"
 runuser -l $SUDOUSER -c "chmod 600 ~/.ssh/id_rsa*"
 
 echo $(date) "- Configuring SSH ControlPath to use shorter path name"
