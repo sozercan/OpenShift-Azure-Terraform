@@ -65,9 +65,9 @@ variable "openshift_azure_vm_os" {
   type = "map"
 
   default = {
-    publisher = "CoreOS"
-    offer     = "CoreOS"
-    sku       = "Stable"
+    publisher = "CentOs"
+    offer     = "OpenLogic"
+    sku       = "7.3"
     version   = "latest"
   }
 }
