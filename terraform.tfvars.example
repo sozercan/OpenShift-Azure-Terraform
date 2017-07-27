@@ -6,8 +6,8 @@ openshift_azure_resource_group = "osrg123"
 openshift_azure_region = "East US"
 
 openshift_azure_vm_username = "ocpadmin"
-openshift_azure_public_key = "~/<username>/.ssh/id_rsa.pub"
-openshift_azure_private_key = "~/<username>/.ssh/id_rsa"
+openshift_azure_public_key = "~/.ssh/randomKey.pub"
+openshift_azure_private_key = "~/.ssh/randomKey"
 
 openshift_azure_master_vm_count = 1
 openshift_azure_node_vm_count = 1
