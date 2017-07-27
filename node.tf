@@ -115,7 +115,7 @@ resource "azurerm_virtual_machine_extension" "osnodevmextension" {
         "fileUris": [
             "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/nodePrep.sh"
         ],
-        "commandToExecute": "bash nodePrep.sh ospvstorage567 ${var.openshift_azure_vm_username}"
+        "commandToExecute": "bash nodePrep.sh ${azurerm_storage_account.osstoragepv.name} ${var.openshift_azure_vm_username}"
     }
 SETTINGS
 }
