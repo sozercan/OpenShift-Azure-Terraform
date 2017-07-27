@@ -114,9 +114,9 @@ resource "azurerm_virtual_machine_extension" "osinfravmextension" {
   settings = <<SETTINGS
     {
         "fileUris": [
-            "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/masterPrep.sh"
+            "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/nodePrep.sh"
         ],
-        "commandToExecute": "bash masterPrep.sh ospvstorage567 ${var.openshift_azure_vm_username}"
+        "commandToExecute": "bash nodePrep.sh ospvstorage567 ${var.openshift_azure_vm_username}"
     }
 SETTINGS
 }

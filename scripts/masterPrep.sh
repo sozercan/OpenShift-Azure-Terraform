@@ -52,9 +52,9 @@ fi
 systemctl enable docker
 systemctl start docker
 
-# Create Storage Class yml files on MASTER-0
+# Create Storage Class yml files on first master
 
-if hostname -f|grep -- "-0" >/dev/null
+if hostname -f|grep -- "-1" >/dev/null
 then
 cat <<EOF > /home/${SUDOUSER}/scgeneric1.yml
 kind: StorageClass
