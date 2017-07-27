@@ -11,10 +11,28 @@ resource "azurerm_network_interface" "osmasternic" {
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   ip_configuration {
-    name                          = "configuration"
-    subnet_id                     = "${azurerm_subnet.osmastersubnet.id}"
-    private_ip_address_allocation = "dynamic"
+    name                                    = "configuration"
+    subnet_id                               = "${azurerm_subnet.osmastersubnet.id}"
+    private_ip_address_allocation           = "dynamic"
+    load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.osmasterlbbepool.id}"]
+    load_balancer_inbound_nat_rules_ids     = ["${azurerm_lb_nat_rule.osmasterlbnatrule.id}"]
   }
+}
+
+resource "azurerm_lb_backend_address_pool" "osmasterlbbepool" {
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id     = "${azurerm_lb.osmasterlb.id}"
+  name                = "BackEndAddressPool"
+}
+
+resource "azurerm_lb_nat_rule" "osmasterlbnatrule" {
+  resource_group_name            = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id                = "${azurerm_lb.osmasterlb.id}"
+  name                           = "SSH"
+  protocol                       = "Tcp"
+  frontend_port                  = 22
+  backend_port                   = 22
+  frontend_ip_configuration_name = "PublicIPAddress"
 }
 
 resource "azurerm_public_ip" "osmasterip" {
@@ -59,6 +77,14 @@ resource "azurerm_virtual_machine" "osmastervm" {
     managed_disk_type = "Standard_LRS"
   }
 
+  storage_data_disk {
+    name              = "datadiskmaster"
+    managed_disk_type = "Standard_LRS"
+    create_option     = "Empty"
+    lun               = 0
+    disk_size_gb      = "128"
+  }
+
   os_profile {
     computer_name  = "${var.openshift_azure_resource_prefix}-vm-master-${var.openshift_azure_resource_suffix}-${format("%01d", count.index+1)}"
     admin_username = "${var.openshift_azure_vm_username}"
@@ -91,28 +117,7 @@ resource "azurerm_virtual_machine_extension" "osmastervmextension" {
         "fileUris": [
             "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/masterPrep.sh", "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/deployOpenShift.sh"
         ],
-        "commandToExecute": "bash masterPrep.sh && bash deployOpenShift.sh azureuser \
-        password123 \
-        ${var.openshift_azure_ssh_key} \
-        osmaster \
-        ${azurerm_public_ip.osmasterip.fqdn} \
-        ${azurerm_public_ip.osmasterip.ip_address} \
-        osinfra \
-        osnode \
-        1 \
-        1 \
-        1 \
-        xip.io \
-        ${azurerm_storage_account.osstorage.name} \
-        ${azurerm_storage_account.osstorage.primary_access_key} \
-        ${var.azure_tenant_id} \
-        ${var.azure_subscription_id} \
-        ${var.azure_client_id} \
-        ${var.azure_client_secret} \
-        ${var.openshift_azure_resource_group} \
-        ${var.openshift_azure_region} \
-        ospvstorage567 \
-        ${azurerm_storage_account.osstorage.primary_access_key}"
+        "commandToExecute": "bash masterPrep.sh ospvstorage567 azureuser && bash deployOpenShift.sh azureuser password123 ${var.openshift_azure_ssh_key} osmaster ${azurerm_public_ip.osmasterip.fqdn} ${azurerm_public_ip.osmasterip.ip_address} osinfra osnode 1 1 1 xip.io ${azurerm_storage_account.osstorage.name} ${azurerm_storage_account.osstorage.primary_access_key} ${var.azure_tenant_id} ${var.azure_subscription_id} ${var.azure_client_id} ${var.azure_client_secret} ${var.openshift_azure_resource_group} ${var.openshift_azure_region} ospvstorage567 ${azurerm_storage_account.osstorage.primary_access_key}"
     }
 SETTINGS
 }

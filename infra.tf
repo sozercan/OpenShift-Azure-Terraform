@@ -11,10 +11,28 @@ resource "azurerm_network_interface" "osinfranic" {
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   ip_configuration {
-    name                          = "configuration"
-    subnet_id                     = "${azurerm_subnet.osinfrasubnet.id}"
-    private_ip_address_allocation = "dynamic"
+    name                                    = "configuration"
+    subnet_id                               = "${azurerm_subnet.osinfrasubnet.id}"
+    private_ip_address_allocation           = "dynamic"
+    load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.osinfralbbepool.id}"]
+    load_balancer_inbound_nat_rules_ids     = ["${azurerm_lb_nat_rule.osinfralbnatrule.id}"]
   }
+}
+
+resource "azurerm_lb_backend_address_pool" "osinfralbbepool" {
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id     = "${azurerm_lb.osinfralb.id}"
+  name                = "BackEndAddressPool"
+}
+
+resource "azurerm_lb_nat_rule" "osinfralbnatrule" {
+  resource_group_name            = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id                = "${azurerm_lb.osinfralb.id}"
+  name                           = "SSH"
+  protocol                       = "Tcp"
+  frontend_port                  = 22
+  backend_port                   = 22
+  frontend_ip_configuration_name = "PublicIPAddress"
 }
 
 resource "azurerm_public_ip" "osinfraip" {
@@ -56,6 +74,14 @@ resource "azurerm_virtual_machine" "osinfravm" {
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
+  }
+
+  storage_data_disk {
+    name              = "datadiskinfra"
+    managed_disk_type = "Standard_LRS"
+    create_option     = "Empty"
+    lun               = 0
+    disk_size_gb      = "128"
   }
 
   os_profile {
