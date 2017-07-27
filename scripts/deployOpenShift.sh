@@ -43,7 +43,7 @@ azure storage container create -a $STORAGEACCOUNT1 -k $SAKEY1 --container vhds
 # Generate private keys for use by Ansible
 echo $(date) " - Generating Private keys for use by Ansible for OpenShift Installation"
 
-runuser -l $SUDOUSER -c "(echo \"$PRIVATEKEY\" | base64 -D) > ~/.ssh/id_rsa"
+runuser -l $SUDOUSER -c "(echo \"$PRIVATEKEY\" | base64 -d) > ~/.ssh/id_rsa"
 runuser -l $SUDOUSER -c "chmod 600 ~/.ssh/id_rsa*"
 
 echo $(date) "- Configuring SSH ControlPath to use shorter path name"
