@@ -86,11 +86,11 @@ $ az ad app list --display-name osterraform
 
 *NOTE: A more detailed overview can be found on the [Terraform Site](https://www.terraform.io/docs/providers/azurerm/index.html)*
 
-## Deploy the Azure infrastructure and DC/OS
+## Deploy the Azure infrastructure and OpenShift
 
-* First, review the default configuratiion. Most common options are available in `terraform.tfvars`. The full list of available options are in `config.tf`. CentOS is the default as it has pre-requirements built in.
+* First rename the `terraform.tfvars.example` to `terraform.tfvars` and review the default configuration. Most common options are available inside. The full list of available options are in `config.tf`. CentOS is the default as it has pre-requirements built in.
 
-* Update `terraform.tfvars` with the path to your passwordless SSH public and private keys.
+* Update `terraform.tfvars` with the path to your passwordless SSH public and private keys. (openshift_azure_public_key and openshift_azure_private_key)
 
 * Change `openshift_azure_resource_prefix` (and optionally `openshift_azure_resource_suffix`) to something unique
 
