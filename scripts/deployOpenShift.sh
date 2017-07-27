@@ -447,7 +447,7 @@ cat > /etc/ansible/hosts <<EOF
 [OSEv3:children]
 masters
 nodes
-master0
+master1
 new_nodes
 
 # Set variables common for all OSEv3 hosts
@@ -484,7 +484,7 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 [masters]
 $MASTER-1
 
-[master0]
+[master1]
 $MASTER-1
 
 # host group for nodes
@@ -494,14 +494,14 @@ EOF
 
 # Loop to add Infra Nodes
 
-for (( c=0; c<$INFRACOUNT; c++ ))
+for (( c=1; c<$INFRACOUNT; c++ ))
 do
   echo "$INFRA-$c openshift_node_labels=\"{'type': 'infra', 'zone': 'default'}\" openshift_hostname=$INFRA-$c" >> /etc/ansible/hosts
 done
 
 # Loop to add Nodes
 
-for (( c=0; c<$NODECOUNT; c++ ))
+for (( c=1; c<$NODECOUNT; c++ ))
 do
   echo "$NODE-$c openshift_node_labels=\"{'type': 'app', 'zone': 'default'}\" openshift_hostname=$NODE-$c" >> /etc/ansible/hosts
 done
@@ -524,7 +524,7 @@ cat > /etc/ansible/hosts <<EOF
 masters
 nodes
 etcd
-master0
+master1
 new_nodes
 
 # Set variables common for all OSEv3 hosts
@@ -560,13 +560,13 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 
 # host group for masters
 [masters]
-$MASTER-[0:${MASTERLOOP}]
+$MASTER-[1:${MASTERLOOP}]
 
 # host group for etcd
 [etcd]
-$MASTER-[0:${MASTERLOOP}]
+$MASTER-[1:${MASTERLOOP}]
 
-[master0]
+[master1]
 $MASTER-1
 
 # host group for nodes
@@ -575,21 +575,21 @@ EOF
 
 # Loop to add Masters
 
-for (( c=0; c<$MASTERCOUNT; c++ ))
+for (( c=1; c<$MASTERCOUNT; c++ ))
 do
   echo "$MASTER-$c openshift_node_labels=\"{'type': 'master', 'zone': 'default'}\" openshift_hostname=$MASTER-$c" >> /etc/ansible/hosts
 done
 
 # Loop to add Infra Nodes
 
-for (( c=0; c<$INFRACOUNT; c++ ))
+for (( c=1; c<$INFRACOUNT; c++ ))
 do
   echo "$INFRA-$c openshift_node_labels=\"{'type': 'infra', 'zone': 'default'}\" openshift_hostname=$INFRA-$c" >> /etc/ansible/hosts
 done
 
 # Loop to add Nodes
 
-for (( c=0; c<$NODECOUNT; c++ ))
+for (( c=1; c<$NODECOUNT; c++ ))
 do
   echo "$NODE-$c openshift_node_labels=\"{'type': 'app', 'zone': 'default'}\" openshift_hostname=$NODE-$c" >> /etc/ansible/hosts
 done
