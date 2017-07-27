@@ -113,3 +113,9 @@ variable "azure_subscription_id" {
   description = ""
   default     = ""
 }
+
+variable "openshift_initial_password" {
+  type        = "string"
+  description = "initial password for OpenShift"
+  default     = "password123"
+}

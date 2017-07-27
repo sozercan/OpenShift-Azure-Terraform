@@ -42,4 +42,3 @@ systemctl enable docker
 systemctl start docker
 
 echo $(date) " - Script Complete"
-

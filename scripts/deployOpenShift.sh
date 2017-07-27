@@ -93,11 +93,11 @@ cat > /home/${SUDOUSER}/addocpuser.yml <<EOF
     shell: htpasswd -cb /etc/origin/master/htpasswd ${SUDOUSER} "${PASSWORD}"
 EOF
 
-# Run on MASTER-0 - Make initial OpenShift User a Cluster Admin
+# Run on MASTER-1 - Make initial OpenShift User a Cluster Admin
 
 cat > /home/${SUDOUSER}/assignclusteradminrights.yml <<EOF
 ---
-- hosts: master0
+- hosts: master1
   gather_facts: no
   remote_user: ${SUDOUSER}
   become: yes
@@ -109,11 +109,11 @@ cat > /home/${SUDOUSER}/assignclusteradminrights.yml <<EOF
     shell: oadm policy add-cluster-role-to-user cluster-admin $SUDOUSER --config=/etc/origin/master/admin.kubeconfig
 EOF
 
-# Run on MASTER-0 - configure registry to use Azure Storage
+# Run on MASTER-1 - configure registry to use Azure Storage
 
 cat > /home/${SUDOUSER}/dockerregistry.yml <<EOF
 ---
-- hosts: master0
+- hosts: master1
   gather_facts: no
   remote_user: ${SUDOUSER}
   become: yes
@@ -125,11 +125,11 @@ cat > /home/${SUDOUSER}/dockerregistry.yml <<EOF
     shell: oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSA -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$ACCOUNTKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
 EOF
 
-# Run on MASTER-0 - configure Storage Class
+# Run on MASTER-1 - configure Storage Class
 
 cat > /home/${SUDOUSER}/configurestorageclass.yml <<EOF
 ---
-- hosts: master0
+- hosts: master1
   gather_facts: no
   remote_user: ${SUDOUSER}
   become: yes
@@ -160,7 +160,7 @@ then
 # Single Master Configuration
 
 cat > /home/${SUDOUSER}/setup-azure-master.yml <<EOF
-#!/usr/bin/ansible-playbook 
+#!/usr/bin/ansible-playbook
 - hosts: masters
   gather_facts: no
   serial: 1
@@ -193,7 +193,7 @@ cat > /home/${SUDOUSER}/setup-azure-master.yml <<EOF
           "subscriptionID" : "{{ g_subscriptionId }}",
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
-        } 
+        }
     notify:
     - restart origin-master
 
@@ -227,7 +227,7 @@ else
 # Multiple Master Configuration
 
 cat > /home/${SUDOUSER}/setup-azure-master.yml <<EOF
-#!/usr/bin/ansible-playbook 
+#!/usr/bin/ansible-playbook
 - hosts: masters
   gather_facts: no
   serial: 1
@@ -265,7 +265,7 @@ cat > /home/${SUDOUSER}/setup-azure-master.yml <<EOF
           "subscriptionID" : "{{ g_subscriptionId }}",
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
-        } 
+        }
     notify:
     - restart origin-master-api
     - restart origin-master-controllers
@@ -301,7 +301,7 @@ fi
 # Create Azure Cloud Provider configuration Playbook for Node Config (Master Nodes)
 
 cat > /home/${SUDOUSER}/setup-azure-node-master.yml <<EOF
-#!/usr/bin/ansible-playbook 
+#!/usr/bin/ansible-playbook
 - hosts: masters
   serial: 1
   gather_facts: no
@@ -333,7 +333,7 @@ cat > /home/${SUDOUSER}/setup-azure-node-master.yml <<EOF
           "subscriptionID" : "{{ g_subscriptionId }}",
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
-        } 
+        }
     notify:
     - restart origin-node
   - name: insert the azure disk config into the node
@@ -356,7 +356,7 @@ EOF
 # Create Azure Cloud Provider configuration Playbook for Node Config (Non-Master Nodes)
 
 cat > /home/${SUDOUSER}/setup-azure-node.yml <<EOF
-#!/usr/bin/ansible-playbook 
+#!/usr/bin/ansible-playbook
 - hosts: nodes:!masters
   serial: 1
   gather_facts: no
@@ -388,7 +388,7 @@ cat > /home/${SUDOUSER}/setup-azure-node.yml <<EOF
           "subscriptionID" : "{{ g_subscriptionId }}",
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
-        } 
+        }
     notify:
     - restart origin-node
   - name: insert the azure disk config into the node
@@ -408,7 +408,7 @@ cat > /home/${SUDOUSER}/setup-azure-node.yml <<EOF
     - restart origin-node
   - name: delete the node so it can recreate itself
     command: oc delete node {{inventory_hostname}}
-    delegate_to: ${MASTER}-0
+    delegate_to: ${MASTER}-1
   - name: sleep to let node come back to life
     pause:
        seconds: 90
@@ -425,7 +425,7 @@ cat > /home/${SUDOUSER}/deletestucknodes.yml <<EOF
   tasks:
   - name: Delete stuck nodes so it can recreate itself
     command: oc delete node {{inventory_hostname}}
-    delegate_to: ${MASTER}-0
+    delegate_to: ${MASTER}-1
   - name: sleep between deletes
     pause:
       seconds: 5
@@ -481,14 +481,14 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 
 # host group for masters
 [masters]
-$MASTER-0
+$MASTER-1
 
 [master0]
-$MASTER-0
+$MASTER-1
 
 # host group for nodes
 [nodes]
-$MASTER-0 openshift_node_labels="{'type': 'master', 'zone': 'default'}" openshift_hostname=$MASTER-0
+$MASTER-1 openshift_node_labels="{'type': 'master', 'zone': 'default'}" openshift_hostname=$MASTER-1
 EOF
 
 # Loop to add Infra Nodes
@@ -563,10 +563,10 @@ $MASTER-[0:${MASTERLOOP}]
 
 # host group for etcd
 [etcd]
-$MASTER-[0:${MASTERLOOP}] 
+$MASTER-[0:${MASTERLOOP}]
 
 [master0]
-$MASTER-0
+$MASTER-1
 
 # host group for nodes
 [nodes]
@@ -659,7 +659,6 @@ runuser -l $SUDOUSER -c "ansible-playbook ~/deletestucknodes.yml"
 
 # Delete postinstall files
 echo $(date) "- Deleting post installation files"
-
 
 rm /home/${SUDOUSER}/addocpuser.yml
 rm /home/${SUDOUSER}/assignclusteradminrights.yml
