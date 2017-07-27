@@ -80,8 +80,14 @@ variable "openshift_azure_vm_username" {
 
 variable "openshift_master_dns_name" {
   type        = "string"
-  description = "DNS Name"
-  default     = "openshifthack"
+  description = "DNS prefix name for the master"
+  default     = "osmaster"
+}
+
+variable "openshift_infra_dns_name" {
+  type        = "string"
+  description = "DNS prefix name for the infra"
+  default     = "osinfra"
 }
 
 variable "azure_client_id" {
