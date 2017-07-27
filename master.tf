@@ -1,12 +1,12 @@
 resource "azurerm_availability_set" "osmasteras" {
-  name                = "osmasteras"
+  name                = "${var.openshift_azure_resource_prefix}-as-master-${var.openshift_azure_resource_suffix}"
   location            = "${var.openshift_azure_region}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
   managed             = true
 }
 
 resource "azurerm_network_interface" "osmasternic" {
-  name                = "osmasternic"
+  name                = "${var.openshift_azure_resource_prefix}-nic-master-${var.openshift_azure_resource_suffix}"
   location            = "${var.openshift_azure_region}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
@@ -18,7 +18,7 @@ resource "azurerm_network_interface" "osmasternic" {
 }
 
 resource "azurerm_public_ip" "osmasterip" {
-  name                         = "osmasterip"
+  name                         = "${var.openshift_azure_resource_prefix}-vip-master-${var.openshift_azure_resource_suffix}"
   location                     = "${var.openshift_azure_region}"
   resource_group_name          = "${azurerm_resource_group.osrg.name}"
   public_ip_address_allocation = "static"
@@ -26,7 +26,7 @@ resource "azurerm_public_ip" "osmasterip" {
 }
 
 resource "azurerm_lb" "osmasterlb" {
-  name                = "osmasterlb"
+  name                = "${var.openshift_azure_resource_prefix}-nlb-master-${var.openshift_azure_resource_suffix}"
   location            = "${var.openshift_azure_region}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
@@ -37,7 +37,7 @@ resource "azurerm_lb" "osmasterlb" {
 }
 
 resource "azurerm_virtual_machine" "osmastervm" {
-  name                  = "osmastervm"
+  name                  = "${var.openshift_azure_resource_prefix}-vm-master-${var.openshift_azure_resource_suffix}-${format("%01d", count.index+1)}"
   count                 = "${var.openshift_azure_master_vm_count}"
   location              = "${var.openshift_azure_region}"
   resource_group_name   = "${azurerm_resource_group.osrg.name}"
@@ -46,10 +46,10 @@ resource "azurerm_virtual_machine" "osmastervm" {
   vm_size               = "${var.openshift_azure_master_vm_size}"
 
   storage_image_reference {
-    publisher = "Openlogic"
-    offer     = "CentOS"
-    sku       = "7.3"
-    version   = "latest"
+    publisher = "${var.openshift_azure_vm_os["publisher"]}"
+    offer     = "${var.openshift_azure_vm_os["offer"]}"
+    sku       = "${var.openshift_azure_vm_os["sku"]}"
+    version   = "${var.openshift_azure_vm_os["version"]}"
   }
 
   storage_os_disk {
@@ -60,16 +60,16 @@ resource "azurerm_virtual_machine" "osmastervm" {
   }
 
   os_profile {
-    computer_name  = "osmaster"
-    admin_username = "azureuser"
-    admin_password = "password123"
+    computer_name  = "${var.openshift_azure_resource_prefix}-vm-master-${var.openshift_azure_resource_suffix}-${format("%01d", count.index+1)}"
+    admin_username = "${var.openshift_azure_vm_username}"
+    admin_password = "${uuid()}"
   }
 
   os_profile_linux_config {
     disable_password_authentication = true
 
     ssh_keys {
-      path     = "/home/azureuser/.ssh/authorized_keys"
+      path     = "/home/${var.openshift_azure_vm_username}/.ssh/authorized_keys"
       key_data = "${var.openshift_azure_ssh_key}"
     }
   }

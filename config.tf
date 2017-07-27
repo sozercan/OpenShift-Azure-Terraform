@@ -61,6 +61,23 @@ variable "openshift_azure_node_vm_size" {
   default     = "Standard_DS2_v2"
 }
 
+variable "openshift_azure_vm_os" {
+  type = "map"
+
+  default = {
+    publisher = "CoreOS"
+    offer     = "CoreOS"
+    sku       = "Stable"
+    version   = "latest"
+  }
+}
+
+variable "openshift_azure_vm_username" {
+  type        = "string"
+  description = "VM Username"
+  default     = "ocpadmin"
+}
+
 variable "openshift_master_dns_name" {
   type        = "string"
   description = "DNS Name"
