@@ -71,14 +71,14 @@ resource "azurerm_virtual_machine" "osmastervm" {
   }
 
   storage_os_disk {
-    name              = "osdiskmaster"
+    name              = "${var.openshift_azure_resource_prefix}-disk-os-master-${var.openshift_azure_resource_suffix}-${format("%01d", count.index+1)}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
   }
 
   storage_data_disk {
-    name              = "datadiskmaster"
+    name              = "${var.openshift_azure_resource_prefix}-disk-data-master-${var.openshift_azure_resource_suffix}-${format("%01d", count.index+1)}"
     managed_disk_type = "Standard_LRS"
     create_option     = "Empty"
     lun               = 0

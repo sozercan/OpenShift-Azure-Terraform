@@ -1,5 +1,5 @@
 resource "azurerm_virtual_network" "osvnet" {
-  name                = "${var.openshift_azure_resource_prefix}-osvnet-${var.openshift_azure_resource_suffix}"
+  name                = "${var.openshift_azure_resource_prefix}-vnet-${var.openshift_azure_resource_suffix}"
   depends_on          = ["azurerm_resource_group.osrg"]
   resource_group_name = "${azurerm_resource_group.osrg.name}"
   location            = "${var.openshift_azure_region}"
@@ -34,7 +34,7 @@ resource "azurerm_subnet" "osinfrasubnet" {
 }
 
 resource "azurerm_network_security_group" "osmasternsg" {
-  name                = "os-master-nsg"
+  name                = "${var.openshift_azure_resource_prefix}-nsg-master-${var.openshift_azure_resource_suffix}"
   location            = "${var.openshift_azure_region}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
@@ -79,7 +79,7 @@ resource "azurerm_network_security_group" "osmasternsg" {
 }
 
 resource "azurerm_network_security_group" "osnodensg" {
-  name                = "os-node-nsg"
+  name                = "${var.openshift_azure_resource_prefix}-nsg-node-${var.openshift_azure_resource_suffix}"
   location            = "${var.openshift_azure_region}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
@@ -124,7 +124,7 @@ resource "azurerm_network_security_group" "osnodensg" {
 }
 
 resource "azurerm_network_security_group" "osinfransg" {
-  name                = "os-infra-nsg"
+  name                = "${var.openshift_azure_resource_prefix}-nsg-infra-${var.openshift_azure_resource_suffix}"
   location            = "${var.openshift_azure_region}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
