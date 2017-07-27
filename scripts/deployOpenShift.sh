@@ -429,7 +429,7 @@ cat > /home/${SUDOUSER}/deletestucknodes.yml <<EOF
     delegate_to: ${MASTER}-1
   - name: sleep between deletes
     pause:
-      seconds: 5
+      seconds: 25
   - name: set masters as unschedulable
     command: oadm manage-node {{inventory_hostname}} --schedulable=false
 EOF
