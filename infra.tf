@@ -103,10 +103,10 @@ resource "azurerm_virtual_machine" "osinfravm" {
 
 resource "azurerm_virtual_machine_extension" "osinfravmextension" {
   name                 = "osinfravmextension"
-  count                = "${var.openshift_azure_node_vm_count}"
+  count                = "${var.openshift_azure_infra_vm_count}"
   location             = "${var.openshift_azure_region}"
   resource_group_name  = "${azurerm_resource_group.osrg.name}"
-  virtual_machine_name = "${azurerm_virtual_machine.osnodevm.name}"
+  virtual_machine_name = "${azurerm_virtual_machine.osinfravm.name}"
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
   type_handler_version = "2.0"
