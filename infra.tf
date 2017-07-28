@@ -54,6 +54,44 @@ resource "azurerm_lb" "osinfralb" {
   }
 }
 
+resource "azurerm_lb_rule" "osinfralbrule80" {
+  resource_group_name            = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id                = "${azurerm_lb.osinfralb.id}"
+  name                           = "OpenShiftRouterHTTP"
+  protocol                       = "Tcp"
+  frontend_port                  = 80
+  backend_port                   = 80
+  frontend_ip_configuration_name = "PublicIPAddress"
+  probe_id                       = "${azurerm_lb_probe.osinfralbprobe80.id}"
+}
+
+resource "azurerm_lb_probe" "osinfralbprobe80" {
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id     = "${azurerm_lb.osinfralb.id}"
+  name                = "httpProbe"
+  port                = 80
+  number_of_probes    = 2
+}
+
+resource "azurerm_lb_rule" "osinfralbrule443" {
+  resource_group_name            = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id                = "${azurerm_lb.osinfralb.id}"
+  name                           = "OpenShiftRouterHTTPS"
+  protocol                       = "Tcp"
+  frontend_port                  = 443
+  backend_port                   = 443
+  frontend_ip_configuration_name = "PublicIPAddress"
+  probe_id                       = "${azurerm_lb_probe.osinfralbprobe443.id}"
+}
+
+resource "azurerm_lb_probe" "osinfralbprobe443" {
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id     = "${azurerm_lb.osinfralb.id}"
+  name                = "httpsProbe"
+  port                = 443
+  number_of_probes    = 2
+}
+
 resource "azurerm_virtual_machine" "osinfravm" {
   name                  = "${var.openshift_azure_resource_prefix}-vm-infra-${var.openshift_azure_resource_suffix}-${format("%01d", count.index+1)}"
   count                 = "${var.openshift_azure_infra_vm_count}"

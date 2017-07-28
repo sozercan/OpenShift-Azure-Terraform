@@ -25,7 +25,7 @@ resource "azurerm_lb_backend_address_pool" "osmasterlbbepool" {
   name                = "BackEndAddressPool"
 }
 
-resource "azurerm_lb_nat_rule" "osmasterlbnatrule" {
+resource "azurerm_lb_nat_rule" "osmasterlbnatrule22" {
   resource_group_name            = "${azurerm_resource_group.osrg.name}"
   loadbalancer_id                = "${azurerm_lb.osmasterlb.id}"
   name                           = "SSH"
@@ -33,6 +33,26 @@ resource "azurerm_lb_nat_rule" "osmasterlbnatrule" {
   frontend_port                  = 22
   backend_port                   = 22
   frontend_ip_configuration_name = "PublicIPAddress"
+}
+
+resource "azurerm_lb_rule" "osmasterlbrule8443" {
+  resource_group_name            = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id                = "${azurerm_lb.osmasterlb.id}"
+  name                           = "OpenShiftAdminConsole"
+  protocol                       = "Tcp"
+  frontend_port                  = 8443
+  backend_port                   = 8443
+  frontend_ip_configuration_name = "PublicIPAddress"
+  probe_id                       = "${azurerm_lb_probe.osmasterlbprobe8443.id}"
+  idle_timeout_in_minutes        = 30
+}
+
+resource "azurerm_lb_probe" "osmasterlbprobe8443" {
+  resource_group_name = "${azurerm_resource_group.osrg.name}"
+  loadbalancer_id     = "${azurerm_lb.osmasterlb.id}"
+  name                = "8443Probe"
+  port                = 8443
+  number_of_probes    = 2
 }
 
 resource "azurerm_public_ip" "osmasterip" {
