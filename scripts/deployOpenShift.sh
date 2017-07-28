@@ -27,11 +27,6 @@ LOCATION=${20}
 STORAGEACCOUNT1=${21}
 SAKEY1=${22}
 
-
-MASTERLOOP=$((MASTERCOUNT - 1))
-INFRALOOP=$((INFRACOUNT - 1))
-NODELOOP=$((NODECOUNT - 1))
-
 # Create vhds Container in PV Storage Account
 echo $(date) " - Creating vhds container in PV Storage Account"
 
@@ -494,14 +489,14 @@ EOF
 
 # Loop to add Infra Nodes
 
-for (( c=1; c<$INFRACOUNT; c++ ))
+for (( c=1; c<=$INFRACOUNT; c++ ))
 do
   echo "$INFRA-$c openshift_node_labels=\"{'type': 'infra', 'zone': 'default'}\" openshift_hostname=$INFRA-$c" >> /etc/ansible/hosts
 done
 
 # Loop to add Nodes
 
-for (( c=1; c<$NODECOUNT; c++ ))
+for (( c=1; c<=$NODECOUNT; c++ ))
 do
   echo "$NODE-$c openshift_node_labels=\"{'type': 'app', 'zone': 'default'}\" openshift_hostname=$NODE-$c" >> /etc/ansible/hosts
 done
@@ -560,11 +555,11 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 
 # host group for masters
 [masters]
-$MASTER-[1:${MASTERLOOP}]
+$MASTER-[1:${MASTERCOUNT}]
 
 # host group for etcd
 [etcd]
-$MASTER-[1:${MASTERLOOP}]
+$MASTER-[1:${MASTERCOUNT}]
 
 [master1]
 $MASTER-1
@@ -575,21 +570,21 @@ EOF
 
 # Loop to add Masters
 
-for (( c=1; c<$MASTERCOUNT; c++ ))
+for (( c=1; c<=$MASTERCOUNT; c++ ))
 do
   echo "$MASTER-$c openshift_node_labels=\"{'type': 'master', 'zone': 'default'}\" openshift_hostname=$MASTER-$c" >> /etc/ansible/hosts
 done
 
 # Loop to add Infra Nodes
 
-for (( c=1; c<$INFRACOUNT; c++ ))
+for (( c=1; c<=$INFRACOUNT; c++ ))
 do
   echo "$INFRA-$c openshift_node_labels=\"{'type': 'infra', 'zone': 'default'}\" openshift_hostname=$INFRA-$c" >> /etc/ansible/hosts
 done
 
 # Loop to add Nodes
 
-for (( c=1; c<$NODECOUNT; c++ ))
+for (( c=1; c<=$NODECOUNT; c++ ))
 do
   echo "$NODE-$c openshift_node_labels=\"{'type': 'app', 'zone': 'default'}\" openshift_hostname=$NODE-$c" >> /etc/ansible/hosts
 done
