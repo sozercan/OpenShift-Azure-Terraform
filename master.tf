@@ -15,7 +15,7 @@ resource "azurerm_network_interface" "osmasternic" {
     subnet_id                               = "${azurerm_subnet.osmastersubnet.id}"
     private_ip_address_allocation           = "dynamic"
     load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.osmasterlbbepool.id}"]
-    load_balancer_inbound_nat_rules_ids     = ["${azurerm_lb_nat_rule.osmasterlbnatrule.id}"]
+    load_balancer_inbound_nat_rules_ids     = ["${azurerm_lb_nat_rule.osmasterlbnatrule22.id}"]
   }
 }
 
@@ -45,6 +45,7 @@ resource "azurerm_lb_rule" "osmasterlbrule8443" {
   frontend_ip_configuration_name = "PublicIPAddress"
   probe_id                       = "${azurerm_lb_probe.osmasterlbprobe8443.id}"
   idle_timeout_in_minutes        = 30
+  backend_address_pool_id        = "${azurerm_lb_backend_address_pool.osmasterlbbepool.id}"
 }
 
 resource "azurerm_lb_probe" "osmasterlbprobe8443" {
