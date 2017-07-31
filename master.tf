@@ -147,3 +147,7 @@ resource "azurerm_virtual_machine_extension" "osmastervmextension" {
     }
 SETTINGS
 }
+
+output "OpenShift Web Console" {
+  value = "https://${azurerm_public_ip.osmasterip.fqdn}:8443/console"
+}
