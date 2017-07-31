@@ -18,8 +18,6 @@ resource "azurerm_network_interface" "osmasternic" {
     private_ip_address_allocation           = "dynamic"
     load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.osmasterlbbepool.id}"]
     load_balancer_inbound_nat_rules_ids     = ["${element(azurerm_lb_nat_rule.osmasterlbnatrule22.*.id, count.index)}"]
-
-    # load_balancer_inbound_nat_rules_ids = ["${azurerm_lb_nat_rule.osmasterlbnatrule22.id}"]
   }
 }
 
