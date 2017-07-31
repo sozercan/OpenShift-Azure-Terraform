@@ -65,7 +65,7 @@ $ az ad app list --display-name osterraform
 
 You just have to run the following command :
 
-docker run -it julienstroheker/add-azure-spn <NameApp> <PasswordApp>
+```docker run -it julienstroheker/add-azure-spn <NameApp> <PasswordApp>```
 
 For example :
 
