@@ -1,16 +1,16 @@
-### Create a Client ID / Secret using the Azure CLI 2.0
+# Create a Service Principal for your Subscription
 
 *NOTE: A more detailed overview can be found on the [Terraform Site](https://www.terraform.io/docs/providers/azurerm/index.html)*
 
+* Login with the [Azure CLI 2.0](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+
 ```bash
-$ az login
+ az login
 ```
 
-* Run the following commands. This will print 2 lines, the first is the tenant ID and the second is the subscription ID.
+* After a succesfull login, you will get a list of all the subscriptions related to your account.
 
 ```bash
-$ az account show
-
 {
   "environmentName": "AzureCloud",
   "id": "a97d7ca2-18ca-426f-b7c4-1a2cdaa4d9d1",
@@ -23,40 +23,39 @@ $ az account show
     "type": "user"
   }
 }
+```
 
+* Store the subscription ID from the default subsciption.
+
+```bash
 export SUBSCRIPTIONID=`az account show --output tsv | cut -f2`
-
 ```
 
-* Create an Azure application 
+* Create a Service Principal as a contributor to your Subscription
 
 ```bash
-$ export PASSWORD=`openssl rand -base64 24`
-
-$ az ad app create --display-name osterraform--identifier-uris http://docs.mesosphere.com --homepage http://www.mesosphere.com --password $PASSWORD
-
-$ unset PASSWORD
+az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/${SUBSCRIPTIONID}"
 ```
 
-* Create A Service Principal
+* Store Service Principal, you will use it in your tfvars file.
 
-```bash
-$ APPID=`az ad app list --display-name osterraform -o tsv --out tsv | grep os | cut -f1`
-
-$ az ad sp create --id $APPID
+```json
+{
+  "appId": "23xxxxx-xxxx-xxxx-xxxx-7e83xxxb1",
+  "displayName": "azure-cli-2017-07-31-xx-xx-xx",
+  "name": "http://azure-cli-2017-07-31-xx-xx-xx",
+  "password": "1219e938-72ad-439c-xxx-517ab8b60xxx",
+  "tenant": "72f988bf-xxxx-xxxx-xxxx-2d7cd011db47"
+}
 ```
 
-* Grant Permissions To Your Application
+Now, you can fill up your `terraform.tfvars`
 
-```bash
-$ az role assignment create --assignee http://docs.mesosphere.com --role "Owner" --scope /subscriptions/$SUBSCRIPTIONID
-
-```
-
-* Print the Client ID
-
-```bash
-$ az ad app list --display-name osterraform
+```csharp
+azure_client_id => appId
+azure_client_secret => password
+azure_tenant_id => tenant
+azure_subscription_id => SUBSCRIPTIONID
 ```
 
 *NOTE: A more detailed overview can be found on the [Terraform Site](https://www.terraform.io/docs/providers/azurerm/index.html)*
