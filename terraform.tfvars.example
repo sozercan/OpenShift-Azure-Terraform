@@ -11,6 +11,8 @@ openshift_azure_resource_group = "osrg123"
 openshift_azure_region = "East US"
 
 openshift_azure_vm_username = "ocpadmin"
+openshift_initial_password = "password123"
+
 openshift_azure_public_key = "~/.ssh/randomKey.pub"
 openshift_azure_private_key = "~/.ssh/randomKey"
 

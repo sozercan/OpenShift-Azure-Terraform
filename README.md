@@ -23,68 +23,9 @@ This script allow you to deploy an OpenShift 1.5.1 in best practices on Microsof
 
 * You can also fill the following values in the tfvars file if you prefeer.
 
-* The values for the above environment variables can be obtained through the Azure CLI commands below.
+* The values for the above environment variables can be obtained through the Azure CLI. 
 
-*NOTE: A more detailed overview can be found on the [Terraform Site](https://www.terraform.io/docs/providers/azurerm/index.html)*
-
-```bash
-$ az login
-```
-
-* Run the following commands. This will print 2 lines, the first is the tenant ID and the second is the subscription ID.
-
-```bash
-$ az account show
-
-{
-  "environmentName": "AzureCloud",
-  "id": "a97d7ca2-18ca-426f-b7c4-1a2cdaa4d9d1",
-  "isDefault": true,
-  "name": "My_Azure_Subscription",
-  "state": "Enabled",
-  "tenantId": "34a934ff-86a1-34af-34cd-2d7cd0134bd34",
-  "user": {
-    "name": "juliens@microsoft.com",
-    "type": "user"
-  }
-}
-
-export SUBSCRIPTIONID=`az account show --output tsv | cut -f2`
-
-```
-
-* Create an Azure application 
-
-```bash
-$ export PASSWORD=`openssl rand -base64 24`
-
-$ az ad app create --display-name osterraform--identifier-uris http://docs.mesosphere.com --homepage http://www.mesosphere.com --password $PASSWORD
-
-$ unset PASSWORD
-```
-
-* Create A Service Principal
-
-```bash
-$ APPID=`az ad app list --display-name osterraform -o tsv --out tsv | grep os | cut -f1`
-
-$ az ad sp create --id $APPID
-```
-
-* Grant Permissions To Your Application
-
-```bash
-$ az role assignment create --assignee http://docs.mesosphere.com --role "Owner" --scope /subscriptions/$SUBSCRIPTIONID
-
-```
-
-* Print the Client ID
-
-```bash
-$ az ad app list --display-name osterraform
-```
-
-*NOTE: A more detailed overview can be found on the [Terraform Site](https://www.terraform.io/docs/providers/azurerm/index.html)*
+[Click here to get the step by step about it](/docs/CreateAzureSpn.md)
 
 ## Deploy the Azure infrastructure and OpenShift
 
@@ -105,13 +46,15 @@ $ EXPORT ARM_TENANT_ID=<your tenant id>
 
 $ cd <repo> && terraform apply
 ```
-### Connection to the cluster
+### Connection to console
 
-* Initiate a SSH tunnel to `<masterVIP>.<location>.cloudapp.azure.com` and you should be able to reach the DC/OS UI.
-```bash
-$ sudo ssh <userName>@<masterVIP>.<location>.cloudapp.azure.com -p 2200 -k <sshPrivateKey>
-```
-* The default username/password is `ocpadmin/Passw0rd`.
+After your deployment your should be able to reach the OS console 
+
+```https://<masterFQDN>.<location>.cloudapp.azure.com:8443/console```
+
+The cluster will use self-signed certificates. Accept the warning and proceed to the login page.
+
+* If you didn't change it, the default username/password is `ocpadmin/password123`.
 
 ## ADDITIONAL ##
 
@@ -120,10 +63,10 @@ $ sudo ssh <userName>@<masterVIP>.<location>.cloudapp.azure.com -p 2200 -k <sshP
 To restart and cleanup the Azure assets run the following commands from the <repo> directory
 
 ```bash
-$ az group delete osterraform
+$ az group delete <yourResourceGroup>
 info:    Executing command group delete
-Delete resource group osterraform? [y/n] y
-+ Deleting resource group osterraform                                        
+Delete resource group <yourResourceGroup>? [y/n] y
++ Deleting resource group <yourResourceGroup>                                        
 info:    group delete command OK
 
 $ cd <repo> && rm *terraform.tfstate
@@ -132,4 +75,6 @@ $ cd <repo> && rm *terraform.tfstate
 
 ### Troubleshooting ###
 
-If the deployment gets in an inconsistent state (repeated `terraform apply` commands fail, or output references to leases that no longer exist), you may need to manually reconcile. Destroy the `<osterrform>` resource group, run `terraform remote config -disable` and delete all `terraform.tfstate*` files from `os`, follow the above instructions again.
+If the deployment gets in an inconsistent state (repeated `terraform apply` commands fail, or output references to leases that no longer exist), you may need to manually reconcile. Destroy the `<yourResourceGroup>` resource group, run `terraform remote config -disable` and delete all `terraform.tfstate*` files from `os`, follow the above instructions again.
+
+* You could also check this repo : [Microsoft/openshift-origin](https://github.com/Microsoft/openshift-origin) to get more informations
