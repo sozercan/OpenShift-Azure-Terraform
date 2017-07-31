@@ -18,7 +18,7 @@ resource "azurerm_storage_account" "osstorageregistry" {
   name                = "${var.openshift_azure_resource_prefix}sa${random_id.randomId.hex}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
   depends_on          = ["azurerm_resource_group.osrg"]
-  location            = "${var.openshift_azure_region}"
+  location            = "${azurerm_resource_group.osrg.location}"
   account_type        = "Standard_LRS"
 }
 
@@ -26,6 +26,6 @@ resource "azurerm_storage_account" "osstoragepv" {
   name                = "${var.openshift_azure_resource_prefix}pv${random_id.randomId.hex}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
   depends_on          = ["azurerm_resource_group.osrg"]
-  location            = "${var.openshift_azure_region}"
+  location            = "${azurerm_resource_group.osrg.location}"
   account_type        = "Standard_LRS"
 }

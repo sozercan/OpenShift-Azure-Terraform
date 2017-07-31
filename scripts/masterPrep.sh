@@ -17,6 +17,14 @@ yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarc
 
 sed -i -e "s/^enabled=1/enabled=0/" /etc/yum.repos.d/epel.repo
 
+# Only install Ansible and pyOpenSSL on Master-0 Node
+
+if hostname -f|grep -- "-0" >/dev/null
+then
+   echo $(date) " - Installing Ansible and pyOpenSSL"
+   yum -y --enablerepo=epel install ansible pyOpenSSL
+fi
+
 # Install Docker 1.12.x
 echo $(date) " - Installing Docker 1.12.x"
 
@@ -44,14 +52,10 @@ fi
 systemctl enable docker
 systemctl start docker
 
+# Create Storage Class yml files on MASTER-0
 
-if hostname -f|grep -- "-1" >/dev/null
+if hostname -f|grep -- "-0" >/dev/null
 then
-# Only install Ansible and pyOpenSSL on first master
-echo $(date) " - Installing Ansible and pyOpenSSL"
-yum -y --enablerepo=epel install ansible pyOpenSSL
-
-# Create Storage Class yml files on first master
 cat <<EOF > /home/${SUDOUSER}/scgeneric1.yml
 kind: StorageClass
 apiVersion: storage.k8s.io/v1beta1

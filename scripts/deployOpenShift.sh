@@ -27,6 +27,10 @@ LOCATION=${20}
 STORAGEACCOUNT1=${21}
 SAKEY1=${22}
 
+MASTERLOOP=$((MASTERCOUNT - 1))
+INFRALOOP=$((INFRACOUNT - 1))
+NODELOOP=$((NODECOUNT - 1))
+
 # Create vhds Container in PV Storage Account
 echo $(date) " - Creating vhds container in PV Storage Account"
 
@@ -89,11 +93,11 @@ cat > /home/${SUDOUSER}/addocpuser.yml <<EOF
     shell: htpasswd -cb /etc/origin/master/htpasswd ${SUDOUSER} "${PASSWORD}"
 EOF
 
-# Run on MASTER-1 - Make initial OpenShift User a Cluster Admin
+# Run on MASTER-0 - Make initial OpenShift User a Cluster Admin
 
 cat > /home/${SUDOUSER}/assignclusteradminrights.yml <<EOF
 ---
-- hosts: master1
+- hosts: master0
   gather_facts: no
   remote_user: ${SUDOUSER}
   become: yes
@@ -105,11 +109,11 @@ cat > /home/${SUDOUSER}/assignclusteradminrights.yml <<EOF
     shell: oadm policy add-cluster-role-to-user cluster-admin $SUDOUSER --config=/etc/origin/master/admin.kubeconfig
 EOF
 
-# Run on MASTER-1 - configure registry to use Azure Storage
+# Run on MASTER-0 - configure registry to use Azure Storage
 
 cat > /home/${SUDOUSER}/dockerregistry.yml <<EOF
 ---
-- hosts: master1
+- hosts: master0
   gather_facts: no
   remote_user: ${SUDOUSER}
   become: yes
@@ -121,11 +125,11 @@ cat > /home/${SUDOUSER}/dockerregistry.yml <<EOF
     shell: oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSA -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$ACCOUNTKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
 EOF
 
-# Run on MASTER-1 - configure Storage Class
+# Run on MASTER-0 - configure Storage Class
 
 cat > /home/${SUDOUSER}/configurestorageclass.yml <<EOF
 ---
-- hosts: master1
+- hosts: master0
   gather_facts: no
   remote_user: ${SUDOUSER}
   become: yes
@@ -404,7 +408,7 @@ cat > /home/${SUDOUSER}/setup-azure-node.yml <<EOF
     - restart origin-node
   - name: delete the node so it can recreate itself
     command: oc delete node {{inventory_hostname}}
-    delegate_to: ${MASTER}-1
+    delegate_to: ${MASTER}-0
   - name: sleep to let node come back to life
     pause:
        seconds: 90
@@ -421,7 +425,7 @@ cat > /home/${SUDOUSER}/deletestucknodes.yml <<EOF
   tasks:
   - name: Delete stuck nodes so it can recreate itself
     command: oc delete node {{inventory_hostname}}
-    delegate_to: ${MASTER}-1
+    delegate_to: ${MASTER}-0
   - name: sleep between deletes
     pause:
       seconds: 25
@@ -442,7 +446,7 @@ cat > /etc/ansible/hosts <<EOF
 [OSEv3:children]
 masters
 nodes
-master1
+master0
 new_nodes
 
 # Set variables common for all OSEv3 hosts
@@ -454,7 +458,7 @@ deployment_type=origin
 openshift_release=v1.5.1
 #openshift_image_tag=v1.5.0
 docker_udev_workaround=True
-openshift_use_dnsmasq=true
+openshift_use_dnsmasq=True
 openshift_master_default_subdomain=$ROUTING
 openshift_override_hostname_check=true
 osm_use_cockpit=false
@@ -477,26 +481,26 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 
 # host group for masters
 [masters]
-$MASTER-1
+$MASTER-0
 
-[master1]
-$MASTER-1
+[master0]
+$MASTER-0
 
 # host group for nodes
 [nodes]
-$MASTER-1 openshift_node_labels="{'type': 'master', 'zone': 'default'}" openshift_hostname=$MASTER-1
+$MASTER-0 openshift_node_labels="{'type': 'master', 'zone': 'default'}" openshift_hostname=$MASTER-0
 EOF
 
 # Loop to add Infra Nodes
 
-for (( c=1; c<=$INFRACOUNT; c++ ))
+for (( c=0; c<$INFRACOUNT; c++ ))
 do
   echo "$INFRA-$c openshift_node_labels=\"{'type': 'infra', 'zone': 'default'}\" openshift_hostname=$INFRA-$c" >> /etc/ansible/hosts
 done
 
 # Loop to add Nodes
 
-for (( c=1; c<=$NODECOUNT; c++ ))
+for (( c=0; c<$NODECOUNT; c++ ))
 do
   echo "$NODE-$c openshift_node_labels=\"{'type': 'app', 'zone': 'default'}\" openshift_hostname=$NODE-$c" >> /etc/ansible/hosts
 done
@@ -519,7 +523,7 @@ cat > /etc/ansible/hosts <<EOF
 masters
 nodes
 etcd
-master1
+master0
 new_nodes
 
 # Set variables common for all OSEv3 hosts
@@ -531,7 +535,7 @@ deployment_type=origin
 openshift_release=v1.5
 #openshift_image_tag=v1.5.0
 docker_udev_workaround=True
-openshift_use_dnsmasq=true
+openshift_use_dnsmasq=True
 openshift_master_default_subdomain=$ROUTING
 openshift_override_hostname_check=true
 osm_use_cockpit=false
@@ -555,14 +559,14 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 
 # host group for masters
 [masters]
-$MASTER-[1:${MASTERCOUNT}]
+$MASTER-[0:${MASTERLOOP}]
 
 # host group for etcd
 [etcd]
-$MASTER-[1:${MASTERCOUNT}]
+$MASTER-[0:${MASTERLOOP}]
 
-[master1]
-$MASTER-1
+[master0]
+$MASTER-0
 
 # host group for nodes
 [nodes]
@@ -570,21 +574,21 @@ EOF
 
 # Loop to add Masters
 
-for (( c=1; c<=$MASTERCOUNT; c++ ))
+for (( c=0; c<$MASTERCOUNT; c++ ))
 do
   echo "$MASTER-$c openshift_node_labels=\"{'type': 'master', 'zone': 'default'}\" openshift_hostname=$MASTER-$c" >> /etc/ansible/hosts
 done
 
 # Loop to add Infra Nodes
 
-for (( c=1; c<=$INFRACOUNT; c++ ))
+for (( c=0; c<$INFRACOUNT; c++ ))
 do
   echo "$INFRA-$c openshift_node_labels=\"{'type': 'infra', 'zone': 'default'}\" openshift_hostname=$INFRA-$c" >> /etc/ansible/hosts
 done
 
 # Loop to add Nodes
 
-for (( c=1; c<=$NODECOUNT; c++ ))
+for (( c=0; c<$NODECOUNT; c++ ))
 do
   echo "$NODE-$c openshift_node_labels=\"{'type': 'app', 'zone': 'default'}\" openshift_hostname=$NODE-$c" >> /etc/ansible/hosts
 done
@@ -665,4 +669,4 @@ rm /home/${SUDOUSER}/setup-azure-node-master.yml
 rm /home/${SUDOUSER}/setup-azure-node.yml
 rm /home/${SUDOUSER}/deletestucknodes.yml
 
-echo $(date) " - Script complete"
+echo $(date) "- Script complete"

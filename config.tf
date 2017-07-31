@@ -1,3 +1,27 @@
+variable "azure_client_id" {
+  type        = "string"
+  description = "Azure Client ID"
+  default     = ""
+}
+
+variable "azure_client_secret" {
+  type        = "string"
+  description = "Azure Client Secret"
+  default     = ""
+}
+
+variable "azure_tenant_id" {
+  type        = "string"
+  description = "Azure Tenant ID"
+  default     = ""
+}
+
+variable "azure_subscription_id" {
+  type        = "string"
+  description = "Azure Subscription ID"
+  default     = ""
+}
+
 variable "openshift_azure_resource_prefix" {
   type        = "string"
   description = "Prefix for all the resources"
@@ -13,7 +37,7 @@ variable "openshift_azure_resource_suffix" {
 variable "openshift_azure_resource_group" {
   type        = "string"
   description = "Azure resource group"
-  default     = "openshifthack"
+  default     = "azure"
 }
 
 variable "openshift_azure_region" {
@@ -67,6 +91,11 @@ variable "openshift_azure_node_vm_size" {
   default     = "Standard_DS2_v2"
 }
 
+variable "openshift_azure_data_disk_size" {
+  description = "Size of Datadisk in GB for Docker volume"
+  default     = 128
+}
+
 variable "openshift_azure_vm_os" {
   type = "map"
 
@@ -96,32 +125,32 @@ variable "openshift_infra_dns_name" {
   default     = "osinfra"
 }
 
-variable "azure_client_id" {
-  type        = "string"
-  description = "Azure Client ID"
-  default     = ""
-}
-
-variable "azure_client_secret" {
-  type        = "string"
-  description = "Azure Client Secret"
-  default     = ""
-}
-
-variable "azure_tenant_id" {
-  type        = "string"
-  description = "Azure Tenant ID"
-  default     = ""
-}
-
-variable "azure_subscription_id" {
-  type        = "string"
-  description = "Azure Subscription ID"
-  default     = ""
-}
-
 variable "openshift_initial_password" {
   type        = "string"
   description = "initial password for OpenShift"
   default     = "password123"
+}
+
+variable "openshift_azure_default_subdomain" {
+  type        = "string"
+  description = "The wildcard DNS name you would like to use for routing"
+  default     = "xip.io"
+}
+
+variable "openshift_azure_master_prep_script" {
+  type        = "string"
+  description = "URL for Master Prep script"
+  default     = "https://raw.githubusercontent.com/sozercan/OpenShift-Azure-Terraform/master/scripts/masterPrep.sh"
+}
+
+variable "openshift_azure_node_prep_script" {
+  type        = "string"
+  description = "URL for Node Prep script"
+  default     = "https://raw.githubusercontent.com/sozercan/OpenShift-Azure-Terraform/master/scripts/nodePrep.sh"
+}
+
+variable "openshift_azure_deploy_openshift_script" {
+  type        = "string"
+  description = "URL for Deploy Openshift script"
+  default     = "https://raw.githubusercontent.com/sozercan/OpenShift-Azure-Terraform/master/scripts/deployOpenShift.sh"
 }

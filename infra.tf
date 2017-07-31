@@ -1,21 +1,22 @@
 resource "azurerm_availability_set" "osinfraas" {
   name                = "${var.openshift_azure_resource_prefix}-as-infra-${var.openshift_azure_resource_suffix}"
-  location            = "${var.openshift_azure_region}"
+  location            = "${azurerm_resource_group.osrg.location}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
   managed             = true
 }
 
 resource "azurerm_network_interface" "osinfranic" {
-  name                = "${var.openshift_azure_resource_prefix}-nic-infra-${var.openshift_azure_resource_suffix}"
-  location            = "${var.openshift_azure_region}"
-  resource_group_name = "${azurerm_resource_group.osrg.name}"
+  name                      = "${var.openshift_azure_resource_prefix}-nic-infra-${var.openshift_azure_resource_suffix}-${format("%01d", count.index)}"
+  count                     = "${var.openshift_azure_infra_vm_count}"
+  location                  = "${azurerm_resource_group.osrg.location}"
+  resource_group_name       = "${azurerm_resource_group.osrg.name}"
+  network_security_group_id = "${azurerm_network_security_group.osinfransg.id}"
 
   ip_configuration {
-    name                                    = "configuration"
-    subnet_id                               = "${azurerm_subnet.osinfrasubnet.id}"
+    name                                    = "configuration-${count.index}"
+    subnet_id                               = "${azurerm_subnet.osmastersubnet.id}"
     private_ip_address_allocation           = "dynamic"
     load_balancer_backend_address_pools_ids = ["${azurerm_lb_backend_address_pool.osinfralbbepool.id}"]
-    load_balancer_inbound_nat_rules_ids     = ["${azurerm_lb_nat_rule.osinfralbnatrule.id}"]
   }
 }
 
@@ -25,19 +26,9 @@ resource "azurerm_lb_backend_address_pool" "osinfralbbepool" {
   name                = "BackEndAddressPool"
 }
 
-resource "azurerm_lb_nat_rule" "osinfralbnatrule" {
-  resource_group_name            = "${azurerm_resource_group.osrg.name}"
-  loadbalancer_id                = "${azurerm_lb.osinfralb.id}"
-  name                           = "SSH"
-  protocol                       = "Tcp"
-  frontend_port                  = 22
-  backend_port                   = 22
-  frontend_ip_configuration_name = "PublicIPAddress"
-}
-
 resource "azurerm_public_ip" "osinfraip" {
   name                         = "${var.openshift_azure_resource_prefix}-vip-infra-${var.openshift_azure_resource_suffix}"
-  location                     = "${var.openshift_azure_region}"
+  location                     = "${azurerm_resource_group.osrg.location}"
   resource_group_name          = "${azurerm_resource_group.osrg.name}"
   public_ip_address_allocation = "static"
   domain_name_label            = "${var.openshift_azure_resource_prefix}-${var.openshift_infra_dns_name}-${var.openshift_azure_resource_suffix}"
@@ -45,7 +36,7 @@ resource "azurerm_public_ip" "osinfraip" {
 
 resource "azurerm_lb" "osinfralb" {
   name                = "${var.openshift_azure_resource_prefix}-nlb-infra-${var.openshift_azure_resource_suffix}"
-  location            = "${var.openshift_azure_region}"
+  location            = "${azurerm_resource_group.osrg.location}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   frontend_ip_configuration {
@@ -94,11 +85,11 @@ resource "azurerm_lb_probe" "osinfralbprobe443" {
 }
 
 resource "azurerm_virtual_machine" "osinfravm" {
-  name                  = "${var.openshift_azure_resource_prefix}-vm-infra-${var.openshift_azure_resource_suffix}-${format("%01d", count.index+1)}"
+  name                  = "${var.openshift_azure_resource_prefix}-vm-infra-${var.openshift_azure_resource_suffix}-${format("%01d", count.index)}"
   count                 = "${var.openshift_azure_infra_vm_count}"
-  location              = "${var.openshift_azure_region}"
+  location              = "${azurerm_resource_group.osrg.location}"
   resource_group_name   = "${azurerm_resource_group.osrg.name}"
-  network_interface_ids = ["${azurerm_network_interface.osinfranic.id}"]
+  network_interface_ids = ["${element(azurerm_network_interface.osinfranic.*.id, count.index)}"]
   availability_set_id   = "${azurerm_availability_set.osinfraas.id}"
   vm_size               = "${var.openshift_azure_infra_vm_size}"
 
@@ -110,22 +101,22 @@ resource "azurerm_virtual_machine" "osinfravm" {
   }
 
   storage_os_disk {
-    name              = "${var.openshift_azure_resource_prefix}-disk-os-infra-${var.openshift_azure_resource_suffix}-${format("%01d", count.index+1)}"
+    name              = "${var.openshift_azure_resource_prefix}-disk-os-infra-${var.openshift_azure_resource_suffix}-${format("%01d", count.index)}"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
   }
 
   storage_data_disk {
-    name              = "${var.openshift_azure_resource_prefix}-disk-data-infra-${var.openshift_azure_resource_suffix}-${format("%01d", count.index+1)}"
+    name              = "${var.openshift_azure_resource_prefix}-disk-data-infra-${var.openshift_azure_resource_suffix}-${format("%01d", count.index)}"
     managed_disk_type = "Standard_LRS"
     create_option     = "Empty"
     lun               = 0
-    disk_size_gb      = "128"
+    disk_size_gb      = "${var.openshift_azure_data_disk_size}"
   }
 
   os_profile {
-    computer_name  = "${var.openshift_azure_resource_prefix}-vm-infra-${var.openshift_azure_resource_suffix}-${format("%01d", count.index+1)}"
+    computer_name  = "${var.openshift_azure_resource_prefix}-vm-infra-${var.openshift_azure_resource_suffix}-${format("%01d", count.index)}"
     admin_username = "${var.openshift_azure_vm_username}"
     admin_password = "${uuid()}"
   }
@@ -143,9 +134,9 @@ resource "azurerm_virtual_machine" "osinfravm" {
 resource "azurerm_virtual_machine_extension" "osinfravmextension" {
   name                 = "osinfravmextension"
   count                = "${var.openshift_azure_infra_vm_count}"
-  location             = "${var.openshift_azure_region}"
+  location             = "${azurerm_resource_group.osrg.location}"
   resource_group_name  = "${azurerm_resource_group.osrg.name}"
-  virtual_machine_name = "${azurerm_virtual_machine.osinfravm.name}"
+  virtual_machine_name = "${element(azurerm_virtual_machine.osinfravm.*.name, count.index)}"
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
   type_handler_version = "2.0"
@@ -153,7 +144,7 @@ resource "azurerm_virtual_machine_extension" "osinfravmextension" {
   settings = <<SETTINGS
     {
         "fileUris": [
-            "https://raw.githubusercontent.com/julienstroheker/OpenShift-Azure-Terraform/master/scripts/nodePrep.sh"
+            "${var.openshift_azure_node_prep_script}"
         ],
         "commandToExecute": "bash nodePrep.sh ${azurerm_storage_account.osstoragepv.name} ${var.openshift_azure_vm_username}"
     }

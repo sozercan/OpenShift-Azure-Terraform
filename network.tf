@@ -2,7 +2,7 @@ resource "azurerm_virtual_network" "osvnet" {
   name                = "${var.openshift_azure_resource_prefix}-vnet-${var.openshift_azure_resource_suffix}"
   depends_on          = ["azurerm_resource_group.osrg"]
   resource_group_name = "${azurerm_resource_group.osrg.name}"
-  location            = "${var.openshift_azure_region}"
+  location            = "${azurerm_resource_group.osrg.location}"
   address_space       = ["10.0.0.0/8"]
 }
 
@@ -24,18 +24,9 @@ resource "azurerm_subnet" "osnodesubnet" {
   address_prefix            = "10.2.0.0/16"
 }
 
-resource "azurerm_subnet" "osinfrasubnet" {
-  name                      = "osinfrasubnet"
-  depends_on                = ["azurerm_virtual_network.osvnet"]
-  resource_group_name       = "${azurerm_resource_group.osrg.name}"
-  virtual_network_name      = "${azurerm_virtual_network.osvnet.name}"
-  network_security_group_id = "${azurerm_network_security_group.osinfransg.id}"
-  address_prefix            = "10.3.0.0/16"
-}
-
 resource "azurerm_network_security_group" "osmasternsg" {
   name                = "${var.openshift_azure_resource_prefix}-nsg-master-${var.openshift_azure_resource_suffix}"
-  location            = "${var.openshift_azure_region}"
+  location            = "${azurerm_resource_group.osrg.location}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   security_rule {
@@ -80,7 +71,7 @@ resource "azurerm_network_security_group" "osmasternsg" {
 
 resource "azurerm_network_security_group" "osnodensg" {
   name                = "${var.openshift_azure_resource_prefix}-nsg-node-${var.openshift_azure_resource_suffix}"
-  location            = "${var.openshift_azure_region}"
+  location            = "${azurerm_resource_group.osrg.location}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   security_rule {
@@ -125,7 +116,7 @@ resource "azurerm_network_security_group" "osnodensg" {
 
 resource "azurerm_network_security_group" "osinfransg" {
   name                = "${var.openshift_azure_resource_prefix}-nsg-infra-${var.openshift_azure_resource_suffix}"
-  location            = "${var.openshift_azure_region}"
+  location            = "${azurerm_resource_group.osrg.location}"
   resource_group_name = "${azurerm_resource_group.osrg.name}"
 
   security_rule {
