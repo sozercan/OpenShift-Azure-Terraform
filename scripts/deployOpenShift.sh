@@ -468,7 +468,7 @@ openshift_install_examples=true
 deployment_type=origin
 openshift_release=v3.6
 docker_udev_workaround=True
-openshift_use_dnsmasq=True
+openshift_use_dnsmasq=False
 openshift_master_default_subdomain=$ROUTING
 openshift_override_hostname_check=true
 osm_use_cockpit=false
@@ -477,7 +477,7 @@ osm_use_cockpit=false
 openshift_cloudprovider_kind=azure
 osm_default_node_selector='type=app'
 openshift_disable_check=disk_availability,memory_availability
-os_firewall_use_firewalld=True
+os_firewall_use_firewalld=False
 
 # default selectors for router and registry services
 openshift_router_selector='type=infra'
