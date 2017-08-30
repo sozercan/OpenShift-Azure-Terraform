@@ -477,6 +477,7 @@ osm_use_cockpit=false
 openshift_cloudprovider_kind=azure
 osm_default_node_selector='type=app'
 openshift_disable_check=disk_availability,memory_availability
+os_firewall_use_firewalld=True
 
 # default selectors for router and registry services
 openshift_router_selector='type=infra'
@@ -558,6 +559,7 @@ osm_use_cockpit=false
 openshift_cloudprovider_kind=azure
 osm_default_node_selector='type=app'
 openshift_disable_check=disk_availability,memory_availability
+os_firewall_use_firewalld=True
 
 # default selectors for router and registry services
 openshift_router_selector='type=infra'
