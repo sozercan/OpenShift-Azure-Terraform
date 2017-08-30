@@ -51,6 +51,10 @@ sed -i -e "s/^# control_path = %(directory)s\/%%h-%%r/control_path = %(directory
 sed -i -e "s/^#host_key_checking = False/host_key_checking = False/" /etc/ansible/ansible.cfg
 sed -i -e "s/^#pty=False/pty=False/" /etc/ansible/ansible.cfg
 
+# Temporary workaround: https://access.redhat.com/solutions/3165971
+mkdir -p /etc/origin/node/
+touch /etc/origin/node/resolv.conf
+
 # Create playbook to update ansible.cfg file
 
 cat > updateansiblecfg.yaml <<EOF
@@ -455,7 +459,7 @@ ansible_ssh_user=$SUDOUSER
 ansible_become=yes
 openshift_install_examples=true
 deployment_type=origin
-openshift_release=v3.6.0
+openshift_release=v3.6
 docker_udev_workaround=True
 openshift_use_dnsmasq=True
 openshift_master_default_subdomain=$ROUTING
@@ -483,6 +487,10 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 $MASTER-0
 
 [master0]
+$MASTER-0
+
+# host group for etcd
+[etcd]
 $MASTER-0
 
 # host group for nodes
@@ -531,7 +539,7 @@ ansible_ssh_user=$SUDOUSER
 ansible_become=yes
 openshift_install_examples=true
 deployment_type=origin
-openshift_release=v1.5
+openshift_release=v3.6
 #openshift_image_tag=v1.5.0
 docker_udev_workaround=True
 openshift_use_dnsmasq=True
@@ -605,7 +613,7 @@ fi
 # Initiating installation of OpenShift Container Platform using Ansible Playbook
 echo $(date) " - Installing OpenShift Container Platform via Ansible Playbook"
 
-runuser -l $SUDOUSER -c "git clone -b release-1.5 https://github.com/openshift/openshift-ansible /home/$SUDOUSER/openshift-ansible"
+runuser -l $SUDOUSER -c "git clone https://github.com/openshift/openshift-ansible /home/$SUDOUSER/openshift-ansible"
 
 runuser -l $SUDOUSER -c "ansible-playbook openshift-ansible/playbooks/byo/config.yml"
 
