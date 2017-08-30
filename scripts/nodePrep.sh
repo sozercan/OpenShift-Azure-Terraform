@@ -41,4 +41,9 @@ fi
 systemctl enable docker
 systemctl start docker
 
+# Temporary workaround: https://access.redhat.com/solutions/3165971
+
+mkdir -p /etc/origin/node/
+touch /etc/origin/node/resolv.conf
+
 echo $(date) " - Script Complete"
