@@ -68,16 +68,6 @@ parameters:
   storageAccount: ${STORAGEACCOUNT1}
 EOF
 
-# Install Azure CLI
-
-echo $(date) " - Installing Azure CLI"
-
-rpm -ivh https://kojipkgs.fedoraproject.org//packages/http-parser/2.7.1/3.el7/x86_64/http-parser-2.7.1-3.el7.x86_64.rpm
-
-yum -y --enablerepo=epel install nodejs
-
-npm install -g azure-cli
-
 fi
 
 echo $(date) " - Script Complete"

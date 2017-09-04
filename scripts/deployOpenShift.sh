@@ -26,18 +26,12 @@ RESOURCEGROUP=${19}
 LOCATION=${20}
 STORAGEACCOUNT1=${21}
 SAKEY1=${22}
+OANSIBLEURL="${23}"
+OANSIBLEBRANCH="${24}"
 
 MASTERLOOP=$((MASTERCOUNT - 1))
 INFRALOOP=$((INFRACOUNT - 1))
 NODELOOP=$((NODECOUNT - 1))
-
-# Create vhds Container in PV Storage Account
-echo $(date) " - Creating vhds container in PV Storage Account"
-
-azure telemetry --disable
-azure login --service-principal -u $AADCLIENTID -p $AADCLIENTSECRET --tenant $TENANTID
-
-azure storage container create -a $STORAGEACCOUNT1 -k $SAKEY1 --container vhds
 
 # Generate private keys for use by Ansible
 echo $(date) " - Generating Private keys for use by Ansible for OpenShift Installation"
@@ -465,7 +459,7 @@ new_nodes
 ansible_ssh_user=$SUDOUSER
 ansible_become=yes
 openshift_install_examples=true
-deployment_type=origin
+openshift_deployment_type=origin
 openshift_release=v3.6
 docker_udev_workaround=True
 openshift_use_dnsmasq=True
@@ -546,7 +540,7 @@ new_nodes
 ansible_ssh_user=$SUDOUSER
 ansible_become=yes
 openshift_install_examples=true
-deployment_type=origin
+openshift_deployment_type=origin
 openshift_release=v3.6
 #openshift_image_tag=v1.5.0
 docker_udev_workaround=True
@@ -622,8 +616,21 @@ fi
 # Initiating installation of OpenShift Container Platform using Ansible Playbook
 echo $(date) " - Installing OpenShift Container Platform via Ansible Playbook"
 
-runuser -l $SUDOUSER -c "git clone https://github.com/openshift/openshift-ansible /home/$SUDOUSER/openshift-ansible"
+runuser -l $SUDOUSER -c "git clone ${OANSIBLEURL} /home/$SUDOUSER/openshift-ansible && cd /home/$SUDOUSER/openshift-ansible && git checkout ${OANSIBLEBRANCH}"
 
+echo $(date) " - Running network_manager.yml playbook"
+DOMAIN=`domainname -d`
+# Setup NetworkManager to manage eth0
+runuser -l $SUDOUSER -c "ansible-playbook openshift-ansible/playbooks/byo/openshift-node/network_manager.yml"
+
+echo $(date) " - Setting up NetworkManager on eth0"
+# Configure resolv.conf on all hosts through NetworkManager
+runuser -l $SUDOUSER -c "ansible all -b -m service -a \"name=NetworkManager state=restarted\""
+sleep 5
+runuser -l $SUDOUSER -c "ansible all -b -m command -a \"nmcli con modify eth0 ipv4.dns-search $DOMAIN\""
+runuser -l $SUDOUSER -c "ansible all -b -m service -a \"name=NetworkManager state=restarted\""
+
+echo $(date) " - Running config.yml playbook"
 runuser -l $SUDOUSER -c "ansible-playbook openshift-ansible/playbooks/byo/config.yml"
 
 echo $(date) " - Modifying sudoers"

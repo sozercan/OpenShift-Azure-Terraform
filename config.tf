@@ -154,3 +154,15 @@ variable "openshift_azure_deploy_openshift_script" {
   description = "URL for Deploy Openshift script"
   default     = "https://raw.githubusercontent.com/sozercan/OpenShift-Azure-Terraform/master/scripts/deployOpenShift.sh"
 }
+
+variable "openshift_ansible_url" {
+  type        = "string"
+  description = "URL for openshift-ansible repo"
+  default     = "https://github.com/openshift/openshift-ansible.git"
+}
+
+variable "openshift_ansible_branch" {
+  type        = "string"
+  description = "Branch of the openshift-ansible repo"
+  default     = "master"
+}
