@@ -1,8 +1,8 @@
 # OpenShift-Azure-Terraform
-Deploy OpenShift 1.5.1 on Azure using Terraform and Ansible
+Deploy OpenShift Origin v3.6.0 on Azure using Terraform and Ansible
 ==================
 
-This script allow you to deploy an OpenShift 1.5.1 in best practices on Microsoft Azure.
+This script allow you to deploy an OpenShift Origin v3.6.0 in best practices on Microsoft Azure.
 
 # Terraform Usage #
 
@@ -23,7 +23,7 @@ This script allow you to deploy an OpenShift 1.5.1 in best practices on Microsof
 
 * You can also fill the following values in the tfvars file if you prefeer.
 
-* The values for the above environment variables can be obtained through the Azure CLI. 
+* The values for the above environment variables can be obtained through the Azure CLI.
 
 [Click here to get the step by step about it](/docs/CreateAzureSpn.md)
 
@@ -48,7 +48,7 @@ $ cd <repo> && terraform apply
 ```
 ### Connection to console
 
-After your deployment your should be able to reach the OS console 
+After your deployment your should be able to reach the OS console
 
 ```https://<masterFQDN>.<location>.cloudapp.azure.com:8443/console```
 
@@ -66,7 +66,7 @@ To restart and cleanup the Azure assets run the following commands from the <rep
 $ az group delete <yourResourceGroup>
 info:    Executing command group delete
 Delete resource group <yourResourceGroup>? [y/n] y
-+ Deleting resource group <yourResourceGroup>                                        
++ Deleting resource group <yourResourceGroup>
 info:    group delete command OK
 
 $ cd <repo> && rm *terraform.tfstate
