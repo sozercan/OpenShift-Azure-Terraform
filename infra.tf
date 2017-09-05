@@ -54,6 +54,7 @@ resource "azurerm_lb_rule" "osinfralbrule80" {
   backend_port                   = 80
   frontend_ip_configuration_name = "PublicIPAddress"
   probe_id                       = "${azurerm_lb_probe.osinfralbprobe80.id}"
+  backend_address_pool_id        = "${azurerm_lb_backend_address_pool.osinfralbbepool.id}"
 }
 
 resource "azurerm_lb_probe" "osinfralbprobe80" {
